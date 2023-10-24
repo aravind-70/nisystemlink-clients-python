@@ -29,14 +29,14 @@ def create_product(client):
 @pytest.fixture(scope="class")
 def test_products(create_product):
     ids = []
-    for part_no in range(1, 4):
+    for part_no in range(1, 2):
         product_details = models.ProductRequest(
             partNumber=f"Test_{part_no}",
-            name=f"TestProduct_{datetime.now().timestamp()}",
+            name="TestProduct",
             family="Test",
-            keywords=["test_keyword"],
-            properties={"test_key": "test_value"},
-            fileIds=["11223344"],
+            keywords=["TestKeyword"],
+            properties={"TestKey": "TestValue"},
+            fileIds=["TestFileID"],
         )
 
         request_body = models.CreateProductRequest(products=[product_details])
@@ -57,9 +57,17 @@ class TestSuiteTestMonitorClient:
     def test__create_product(self, client, test_products):
 
         product_details = json.loads(client.get_product(test_products[0]).json())
-        assert product_details['partNumber'] == 'Test_part_no_1'
+        assert product_details['partNumber'] == 'Test_1'
+        assert product_details['name'] == 'TestProduct'
+        assert product_details['family'] == 'Test'
+        assert product_details['keywords'] == ['TestKeyword']
+        assert product_details['properties'] == {'TestKey': 'TestValue'}
+        assert product_details['fileIds'] == ['TestFileID']
+
+        timestamp_dt = datetime.fromisoformat(product_details['updatedAt'])
+        timestamp_unix = timestamp_dt.timestamp()
         now = datetime.now().timestamp()
-        assert product_details['updatedAt'] == pytest.approx(now, abs=10)
+        assert timestamp_unix == pytest.approx(now, abs=10)
 
     def test__get_product_invalid_id(self, client):
         with pytest.raises(ApiException, match="404 Not Found"):
