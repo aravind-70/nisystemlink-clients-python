@@ -115,7 +115,7 @@ class TestDataFrame:
         ]
 
     def test__get_table__correct_timestamp(self, client: DataFrameClient, create_table):
-        id = create_table(basic_table_model)
+        id =   (basic_table_model)
         table = client.get_table_metadata(id)
 
         now = datetime.now().timestamp()
