@@ -1050,5 +1050,8 @@ class CreateProductUpdateRequest(BaseModel):
     products: List[ProductUpdateRequest]
     replace: str
 
+class QueryProductValuesResponse(BaseModel):
+    List[str]
+
 Error.update_forward_refs()
 TestStepRequest.update_forward_refs()

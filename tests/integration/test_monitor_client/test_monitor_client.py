@@ -1,3 +1,4 @@
+"""This file contains the test functions for products APIs of TestMonitorClient"""
 # Python Modules
 import json
 from datetime import datetime
@@ -35,7 +36,7 @@ def test_products(create_product):
     """Fixture to create a set of test products."""
     ids = []
     for part_no in range(1, 3):
-        product_details = models.ProductRequest(
+        product_details = models.ProductRequestObject(
             partNumber=f"Test_{part_no}",
             name=f"TestProduct_{part_no}",
             family="AravindsTest",
@@ -59,50 +60,53 @@ class TestSuiteTestMonitorClient:
         response = client.api_info()
         assert len(response.json()) != 0
 
-    def test__create_product(self, client, test_products):
+    def test__create_products(self, create_product):
+        product_details_3 = models.ProductRequestObject(
+            partNumber="Test_3",
+            name="TestProduct_3",
+            family="AravindsTest",
+            keywords=["TestKeyword"],
+            properties={"TestKey": "TestValue"},
+            fileIds=["TestFileID"],
+        )
+
+        request_body = models.CreateProductsRequest(products=[product_details_3])
+        response = json.loads(create_product(request_body).json())
+
+        assert len(response["products"]) == 1
+
+    def test__create_products__partial_success(self, create_product):
+        duplicate_product_details = models.ProductRequestObject(
+            partNumber="Test_3",
+            name="TestProduct_3",
+            family="AravindsTest",
+            keywords=["TestKeyword"],
+            properties={"TestKey": "TestValue"},
+            fileIds=["TestFileID"],
+        )
+        request_body = models.CreateProductsRequest(products=[duplicate_product_details])
+        with pytest.raises(ValidationError) as exc_info:
+            response = json.loads(create_product(request_body).json())
+        assert "error" in str(exc_info)
+        assert "failed" in str(exc_info)
+
+    def test__get_product(self, client, test_products):
         product_details_response = json.loads(client.get_product(test_products[0]).json())
 
-        assert product_details_response["partNumber"] == "Test_1"
+        assert product_details_response["part_number"] == "Test_1"
         assert product_details_response["name"] == "TestProduct_1"
         assert product_details_response["family"] == "AravindsTest"
         assert product_details_response["keywords"] == ["TestKeyword"]
         assert product_details_response["properties"] == {"TestKey": "TestValue"}
-        assert product_details_response["fileIds"] == ["TestFileID"]
+        assert product_details_response["file_ids"] == ["TestFileID"]
 
-        timestamp_dt = datetime.fromisoformat(product_details_response["updatedAt"])
+        timestamp_dt = datetime.fromisoformat(product_details_response["updated_at"])
         timestamp_unix = timestamp_dt.timestamp()
         now = datetime.now().timestamp()
 
         assert timestamp_unix == pytest.approx(now, abs=10)
 
-    def test__create_product_partial_success(self, create_product):
-        product_details_3 = models.ProductRequest(
-            partNumber="Test_3",
-            name="TestProduct_3",
-            family="AravindsTest",
-            keywords=["TestKeyword"],
-            properties={"TestKey": "TestValue"},
-            fileIds=["TestFileID"],
-        )
-
-        duplicate_product_details = models.ProductRequest(
-            partNumber="Test_3",
-            name="TestProduct_3",
-            family="AravindsTest",
-            keywords=["TestKeyword"],
-            properties={"TestKey": "TestValue"},
-            fileIds=["TestFileID"],
-        )
-
-        request_body = models.CreateProductsRequest(
-            products=[product_details_3, duplicate_product_details]
-        )
-
-        response = json.loads(create_product(request_body).json())
-
-        assert len(response["products"]) == 1
-
-    def test__get_product_invalid_id(self, client):
+    def test__get_product__invalid_id(self, client):
         with pytest.raises(ApiException, match="404 Not Found"):
             client.get_product("invalid product id")
 
@@ -115,7 +119,7 @@ class TestSuiteTestMonitorClient:
         assert len(response["products"]) == 1
         assert response["continuationToken"] is not None
 
-    def test__get_products_without_returnCount(self, client):
+    def test__get_products__without_returnCount(self, client):
         with pytest.raises(ValidationError) as exc_info:
             client.get_products(take=1, continuationToken=None, returnCount=False).json()
 
@@ -152,7 +156,7 @@ class TestSuiteTestMonitorClient:
         assert new_response["totalCount"] is not None
 
     def test__delete_product(self, client):
-        product_details = models.ProductRequest(
+        product_details = models.ProductRequestObject(
             partNumber="Test_4",
             name="TestProduct_4",
             family="AravindsTest",
@@ -170,7 +174,7 @@ class TestSuiteTestMonitorClient:
     def test__detele_products(self, client):
         ids = []
         for part_no in range(4, 6):
-            product_details = models.ProductRequest(
+            product_details = models.ProductRequestObject(
                 partNumber=f"Test_{part_no}",
                 name=f"TestProduct_{part_no}",
                 family="AravindsTest",
@@ -187,7 +191,7 @@ class TestSuiteTestMonitorClient:
         response = client.delete_products(request_body)
 
     def test__update_products(self, client, test_products):
-        updated_product = models.ProductUpdateRequest(
+        updated_product = models.ProductUpdateRequestObject(
             id=test_products[1],
             name="Updated_TestProduct_2",
             family="AravindsTest",
@@ -204,8 +208,8 @@ class TestSuiteTestMonitorClient:
         assert response["products"][0]["properties"] == {"UpdatedKey": "UpdatedValue"}
         assert response["products"][0]["fileIds"] == ["UpdatedTestID"]
 
-    def test__update_product_without_replacing(self, client, test_products):
-        updated_product = models.ProductUpdateRequest(
+    def test__update_product__without_replacing(self, client, test_products):
+        updated_product = models.ProductUpdateRequestObject(
             id=test_products[0],
             name="Updated_TestProduct_1",
             family="AravindsTest",
@@ -222,8 +226,8 @@ class TestSuiteTestMonitorClient:
         assert len(response["products"][0]["properties"]) == 2
         assert len(response["products"][0]["fileIds"]) == 2
 
-    def test__update_products_partial_success(self, client, test_products):
-        updated_product = models.ProductUpdateRequest(
+    def test__update_products__partial_success(self, client, test_products):
+        updated_product = models.ProductUpdateRequestObject(
             id=test_products[0],
             name="Updated_TestProduct_1",
             family="AravindsTest",
@@ -232,7 +236,7 @@ class TestSuiteTestMonitorClient:
             fileIds=["new_fileID_2"],
         )
 
-        invalid_product = models.ProductUpdateRequest(id="invalid_id")
+        invalid_product = models.ProductUpdateRequestObject(id="invalid_id")
 
         request_body = models.CreateProductUpdateRequest(
             products=[updated_product, invalid_product], replace=False

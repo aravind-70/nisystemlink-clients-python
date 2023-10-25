@@ -1175,6 +1175,21 @@ class CreateProductsRequest(JsonModel):
 class CreateProductsResponse(JsonModel):
     products: List[ProductResponseObject]
 
+class ProductsQueryResponse(JsonModel):
+    products: List[ProductResponseObject]
+    continuationToken: str
+    totalCount: str
 
-Error.model_rebuild()
-TestStepRequestObject.model_rebuild()
+class ProductDeleteRequest(JsonModel):
+    ids: List[str]
+
+class CreateProductUpdateRequest(JsonModel):
+    products: List[ProductUpdateRequestObject]
+    replace: str
+
+class QueryProductValuesResponse(JsonModel):
+    List[str]
+
+
+# Error.model_rebuild()
+# TestStepRequestObject.model_rebuild()

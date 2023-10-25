@@ -40,69 +40,69 @@ class TestMonitorClient(BaseClient):
     def api_info(self):
         ...
 
-    # results
+    # # results
 
-    @post("query-results", args=[Path, Body])
-    def query_results(
-        self, queryFilter: Body(type=models.ResultsAdvancedQuery)
-    ) -> models.ResultsQueryResponse:
-        ...
+    # @post("query-results", args=[Path, Body])
+    # def query_results(
+    #     self, queryFilter: Body(type=models.ResultsAdvancedQuery)
+    # ) -> models.ResultsQueryResponseObject:
+    #     ...
 
-    @get("results", args=[Path, Body])
-    def get_results(
-        self,
-        continuationToken: Query(type=str),
-        take: Query(type=int),
-        returnCount: Query(type=int),
-    ) -> models.ResultsQueryResponse:
-        ...
+    # @get("results", args=[Path, Body])
+    # def get_results(
+    #     self,
+    #     continuationToken: Query(type=str),
+    #     take: Query(type=int),
+    #     returnCount: Query(type=int),
+    # ) -> models.ResultsQueryResponse:
+    #     ...
 
-    @post("results", args=[Path, Body])
-    def create_results(self, requestBody: Body(type=models.CreateTestResultRequest)):
-        ...
+    # @post("results", args=[Path, Body])
+    # def create_results(self, requestBody: Body(type=models.CreateTestResultRequest)):
+    #     ...
 
-    @get("results/{resultId}", args=[Path, Body])
-    def get_result(self, resultId: str) -> models.TestResultResponse:
-        ...
+    # @get("results/{resultId}", args=[Path, Body])
+    # def get_result(self, resultId: str) -> models.TestResultResponse:
+    #     ...
 
-    @delete("results/{resultId}", args=[Path, Body])
-    def delete_result(self, resultId: str, deleteSteps: Query(type=bool) = True):
-        ...
+    # @delete("results/{resultId}", args=[Path, Body])
+    # def delete_result(self, resultId: str, deleteSteps: Query(type=bool) = True):
+    #     ...
 
-    @post("query-result-values", args=[Path, Body])
-    def query_result_values(self, resultQuery: Body(type=models.ResultValuesQuery)):
-        ...
+    # @post("query-result-values", args=[Path, Body])
+    # def query_result_values(self, resultQuery: Body(type=models.ResultValuesQuery)):
+    #     ...
 
-    @post("update-results", args=[Path, Body])
-    def update_results(self, request: Body(type=models.UpdateTestResultsRequest)):
-        ...
+    # @post("update-results", args=[Path, Body])
+    # def update_results(self, request: Body(type=models.UpdateTestResultsRequest)):
+    #     ...
 
-    @post("delete-results", args=[Path, Body])
-    def delete_results(self, requestBody: Body(type=models.TestStepsDeleteRequest)):
-        ...
+    # @post("delete-results", args=[Path, Body])
+    # def delete_results(self, requestBody: Body(type=models.TestStepsDeleteRequest)):
+    #     ...
 
-    # steps
+    # # steps
 
-    # paths
+    # # paths
 
-    @get("paths")
-    def get_paths(
-        self,
-        continuationToken: Query(type=str),
-        take: Query(type=int),
-        returnCount: Query(type=int),
-    ) -> models.PathsQueryResponse:
-        ...
+    # @get("paths")
+    # def get_paths(
+    #     self,
+    #     continuationToken: Query(type=str),
+    #     take: Query(type=int),
+    #     returnCount: Query(type=int),
+    # ) -> models.PathsQueryResponse:
+    #     ...
 
-    @get("paths/{pathId}")
-    def get_path(self, pathId: str) -> models.PathResponse:
-        ...
+    # @get("paths/{pathId}")
+    # def get_path(self, pathId: str) -> models.PathResponse:
+    #     ...
 
-    @post("query-paths")
-    def query_paths(
-        self, queryFilter: Body(type=models.PathsAdvancedQuery)
-    ) -> models.PathsQueryResponse:
-        ...
+    # @post("query-paths")
+    # def query_paths(
+    #     self, queryFilter: Body(type=models.PathsAdvancedQuery)
+    # ) -> models.PathsQueryResponse:
+    #     ...
       
     @post("query-products", args=[Path, Body])
     def query_products(
@@ -124,7 +124,7 @@ class TestMonitorClient(BaseClient):
         ...
 
     @get("products/{productId}", args=[Path, Body])
-    def get_product(self, productId: str) -> models.ProductResponse:
+    def get_product(self, productId: str) -> models.ProductResponseObject:
         ...
 
     @delete("products/{productId}", args=[Path, Body])
