@@ -13,24 +13,26 @@ from nisystemlink.clients.testmonitor import TestMonitorClient, models
 
 @pytest.fixture(scope="class")
 def client(enterprise_config):
+    """Fixture to create a TestMonitorClient instance."""
     return TestMonitorClient(enterprise_config)
 
 
 @pytest.fixture(scope="class")
 def create_product(client):
+    """Fixture to return a factory that creates products."""
     products = []
 
     def _create_product(product):
-        id = client.create_products(product)
-        products.append(id)
-        return id
+        response = client.create_products(product)
+        products.append(response)
+        return response
 
     yield _create_product
-    return
 
 
 @pytest.fixture(scope="class")
 def test_products(create_product):
+    """Fixture to create a set of test products."""
     ids = []
     for part_no in range(1, 3):
         product_details = models.ProductRequest(
@@ -59,6 +61,7 @@ class TestSuiteTestMonitorClient:
 
     def test__create_product(self, client, test_products):
         product_details_response = json.loads(client.get_product(test_products[0]).json())
+
         assert product_details_response["partNumber"] == "Test_1"
         assert product_details_response["name"] == "TestProduct_1"
         assert product_details_response["family"] == "AravindsTest"
@@ -69,6 +72,7 @@ class TestSuiteTestMonitorClient:
         timestamp_dt = datetime.fromisoformat(product_details_response["updatedAt"])
         timestamp_unix = timestamp_dt.timestamp()
         now = datetime.now().timestamp()
+
         assert timestamp_unix == pytest.approx(now, abs=10)
 
     def test__create_product_partial_success(self, create_product):
@@ -80,6 +84,7 @@ class TestSuiteTestMonitorClient:
             properties={"TestKey": "TestValue"},
             fileIds=["TestFileID"],
         )
+
         duplicate_product_details = models.ProductRequest(
             partNumber="Test_3",
             name="TestProduct_3",
@@ -92,6 +97,7 @@ class TestSuiteTestMonitorClient:
         request_body = models.CreateProductsRequest(
             products=[product_details_3, duplicate_product_details]
         )
+
         response = json.loads(create_product(request_body).json())
 
         assert len(response["products"]) == 1
@@ -104,15 +110,14 @@ class TestSuiteTestMonitorClient:
         response = json.loads(
             client.get_products(take=1, continuationToken=None, returnCount=True).json()
         )
+
         assert response["totalCount"] is not None
         assert len(response["products"]) == 1
         assert response["continuationToken"] is not None
 
     def test__get_products_without_returnCount(self, client):
         with pytest.raises(ValidationError) as exc_info:
-            response = json.loads(
-                client.get_products(take=1, continuationToken=None, returnCount=False).json()
-            )
+            client.get_products(take=1, continuationToken=None, returnCount=False).json()
 
         assert "totalCount" in str(exc_info)
 
@@ -147,23 +152,20 @@ class TestSuiteTestMonitorClient:
         assert new_response["totalCount"] is not None
 
     def test__delete_product(self, client):
-        ids = []
-        for part_no in range(4, 6):
-            product_details = models.ProductRequest(
-                partNumber=f"Test_{part_no}",
-                name=f"TestProduct_{part_no}",
-                family="AravindsTest",
-                keywords=["TestKeyword"],
-                properties={"TestKey": "TestValue"},
-                fileIds=["TestFileID"],
-            )
-            request_body = models.CreateProductsRequest(products=[product_details])
-            response = json.loads(client.create_products(request_body).json())
-            ids.append(response["products"][0]["id"])
+        product_details = models.ProductRequest(
+            partNumber="Test_4",
+            name="TestProduct_4",
+            family="AravindsTest",
+            keywords=["TestKeyword"],
+            properties={"TestKey": "TestValue"},
+            fileIds=["TestFileID"],
+        )
+        request_body = models.CreateProductsRequest(products=[product_details])
+        response = json.loads(client.create_products(request_body).json())
+        id = response["products"][0]["id"]
 
-        for id in ids:
-            response = client.delete_product(id)
-            assert response is None
+        response = client.delete_product(id)
+        assert response is None
 
     def test__detele_products(self, client):
         ids = []
@@ -176,6 +178,7 @@ class TestSuiteTestMonitorClient:
                 properties={"TestKey": "TestValue"},
                 fileIds=["TestFileID"],
             )
+
             request_body = models.CreateProductsRequest(products=[product_details])
             response = json.loads(client.create_products(request_body).json())
             ids.append(response["products"][0]["id"])
@@ -186,58 +189,66 @@ class TestSuiteTestMonitorClient:
     def test__update_products(self, client, test_products):
         updated_product = models.ProductUpdateRequest(
             id=test_products[1],
-            name='Updated_TestProduct_2',
-            family='AravindsTest',
-            keywords=['UpdatedKeyword'],
-            properties={'UpdatedKey': 'UpdatedValue'},
-            fileIds=['UpdatedTestID']
+            name="Updated_TestProduct_2",
+            family="AravindsTest",
+            keywords=["UpdatedKeyword"],
+            properties={"UpdatedKey": "UpdatedValue"},
+            fileIds=["UpdatedTestID"],
         )
-        request_body = models.CreateProductUpdateRequest(
-            products=[updated_product],
-            replace=True
-        )
+
+        request_body = models.CreateProductUpdateRequest(products=[updated_product], replace=True)
         response = client.update_products(request_body).json()
-        assert response['products'][0]['name'] == 'Updated_TestProduct_2'
-        assert response['products'][0]['keywords'] == ['UpdatedKeyword']
-        assert response['products'][0]['properties'] == {'UpdatedKey': 'UpdatedValue'}
-        assert response['products'][0]['fileIds'] == ['UpdatedTestID']
+
+        assert response["products"][0]["name"] == "Updated_TestProduct_2"
+        assert response["products"][0]["keywords"] == ["UpdatedKeyword"]
+        assert response["products"][0]["properties"] == {"UpdatedKey": "UpdatedValue"}
+        assert response["products"][0]["fileIds"] == ["UpdatedTestID"]
 
     def test__update_product_without_replacing(self, client, test_products):
         updated_product = models.ProductUpdateRequest(
             id=test_products[0],
-            name='Updated_TestProduct_1',
-            family='AravindsTest',
-            keywords=['new_keyword'],
-            properties={'new_key': 'new_value'},
-            fileIds=['new_fileID']
-        )
-        request_body = models.CreateProductUpdateRequest(
-            products=[updated_product],
-            replace=False
-        )
-        response = client.update_products(request_body).json()
-        assert response['products'][0]['name'] == 'Updated_TestProduct_1'
-        assert len(response['products'][0]['keywords']) == 2
-        assert len(response['products'][0]['properties']) == 2
-        assert len(response['products'][0]['fileIds']) == 2
-    
-    def test_update_products_partial_success(self, client, test_products):
-        updated_product = models.ProductUpdateRequest(
-            id=test_products[0],
-            name='Updated_TestProduct_1',
-            family='AravindsTest',
-            keywords=['new_keyword_2'],
-            properties={'new_key_2': 'new_value_2'},
-            fileIds=['new_fileID_2'],      
-        )
-        invalid_product = models.ProductUpdateRequest(
-            id='invalid_id'
+            name="Updated_TestProduct_1",
+            family="AravindsTest",
+            keywords=["new_keyword"],
+            properties={"new_key": "new_value"},
+            fileIds=["new_fileID"],
         )
 
+        request_body = models.CreateProductUpdateRequest(products=[updated_product], replace=False)
+        response = client.update_products(request_body).json()
+
+        assert response["products"][0]["name"] == "Updated_TestProduct_1"
+        assert len(response["products"][0]["keywords"]) == 2
+        assert len(response["products"][0]["properties"]) == 2
+        assert len(response["products"][0]["fileIds"]) == 2
+
+    def test__update_products_partial_success(self, client, test_products):
+        updated_product = models.ProductUpdateRequest(
+            id=test_products[0],
+            name="Updated_TestProduct_1",
+            family="AravindsTest",
+            keywords=["new_keyword_2"],
+            properties={"new_key_2": "new_value_2"},
+            fileIds=["new_fileID_2"],
+        )
+
+        invalid_product = models.ProductUpdateRequest(id="invalid_id")
+
         request_body = models.CreateProductUpdateRequest(
-            products=[updated_product, invalid_product],
-            replace=False
+            products=[updated_product, invalid_product], replace=False
         )
         response = client.update_products(request_body).json()
-        assert len(response['products']) == 1
-        assert 'failed' in response
+
+        assert len(response["products"]) == 1
+        assert "failed" in response
+
+    def test__query_product_values(self, client):
+        request_body = models.ProductValuesQuery(
+            field="PART_NUMBER",
+            filter="""family == \"AravindsTest\"""",
+            substitutions=None,
+            startsWith="T",
+        )
+
+        response = client.query_product_values(request_body).json()
+        assert len(response) == 3
