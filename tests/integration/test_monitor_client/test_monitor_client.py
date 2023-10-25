@@ -4,6 +4,7 @@ from datetime import datetime
 
 # Third party modules
 import pytest
+from pydantic import ValidationError
 
 # Relative Modules
 from nisystemlink.clients.core import ApiException
@@ -18,10 +19,12 @@ def client(enterprise_config):
 @pytest.fixture(scope="class")
 def create_product(client):
     products = []
+
     def _create_product(product):
         id = client.create_products(product)
         products.append(id)
         return id
+
     yield _create_product
     return
 
@@ -29,11 +32,11 @@ def create_product(client):
 @pytest.fixture(scope="class")
 def test_products(create_product):
     ids = []
-    for part_no in range(1, 2):
+    for part_no in range(1, 3):
         product_details = models.ProductRequest(
             partNumber=f"Test_{part_no}",
-            name="TestProduct",
-            family="Test",
+            name=f"TestProduct_{part_no}",
+            family="AravindsTest",
             keywords=["TestKeyword"],
             properties={"TestKey": "TestValue"},
             fileIds=["TestFileID"],
@@ -42,7 +45,7 @@ def test_products(create_product):
         request_body = models.CreateProductsRequest(products=[product_details])
         response = json.loads(create_product(request_body).json())
 
-        ids.append(response['products'][0]['id'])
+        ids.append(response["products"][0]["id"])
 
     return ids
 
@@ -55,16 +58,15 @@ class TestSuiteTestMonitorClient:
         assert len(response.json()) != 0
 
     def test__create_product(self, client, test_products):
-
         product_details = json.loads(client.get_product(test_products[0]).json())
-        assert product_details['partNumber'] == 'Test_1'
-        assert product_details['name'] == 'TestProduct'
-        assert product_details['family'] == 'Test'
-        assert product_details['keywords'] == ['TestKeyword']
-        assert product_details['properties'] == {'TestKey': 'TestValue'}
-        assert product_details['fileIds'] == ['TestFileID']
+        assert product_details["partNumber"] == "Test_1"
+        assert product_details["name"] == "TestProduct_1"
+        assert product_details["family"] == "AravindsTest"
+        assert product_details["keywords"] == ["TestKeyword"]
+        assert product_details["properties"] == {"TestKey": "TestValue"}
+        assert product_details["fileIds"] == ["TestFileID"]
 
-        timestamp_dt = datetime.fromisoformat(product_details['updatedAt'])
+        timestamp_dt = datetime.fromisoformat(product_details["updatedAt"])
         timestamp_unix = timestamp_dt.timestamp()
         now = datetime.now().timestamp()
         assert timestamp_unix == pytest.approx(now, abs=10)
@@ -74,33 +76,47 @@ class TestSuiteTestMonitorClient:
             client.get_product("invalid product id")
 
     def test__get_products(self, client):
-        response = json.loads(client.get_products(
-            take=1,
-            continuationToken=None,
-            returnCount=True
-        ).json())
-        assert response['totalCount'] is not None
-        assert len(response['products']) == 1
-        assert response['continuationToken'] is not None
+        response = json.loads(
+            client.get_products(take=1, continuationToken=None, returnCount=True).json()
+        )
 
-    # def test__query_product__all(self, client):
-    #     query_filter = models.ProductsAdvancedQuery(
-    #         filter=None,
-    #         substitutions=None,
-    #         orderBy=None,
-    #         descending=False,
-    #         projection=None,
-    #         take=1000,
-    #         continuationToken=None,
-    #         returnCount=True,
-    #     )
-    #     response = json.loads(client.query_products(query_filter).json())
-    #     assert len(response) != 0
-    #     assert response["continuationToken"] is not None
+        assert response["totalCount"] is not None
+        assert len(response["products"]) == 1
+        assert response["continuationToken"] is not None
 
-    # def test__query_product__one(self, client):
-    #     query_filter = models.ProductsAdvancedQuery(returnCount=True)
-    #     response = json.loads(client.query_products(query_filter).json())
-    #     assert len(response) != 0
-    #     assert response["continuationToken"] is not None
-    #     assert response["totalCount"] is not None
+    def test__get_products_without_returnCount(self, client):
+        with pytest.raises(ValidationError) as exc_info:
+            response = json.loads(
+                client.get_products(take=1, continuationToken=None, returnCount=False).json()
+            )
+
+        assert "totalCount" in str(exc_info)
+
+    def test__query_product(self, client):
+
+        response = json.loads(
+            client.query_products(
+                models.ProductsAdvancedQuery(
+                    returnCount=True, take=1, filter="""family==\"AravindsTest\""""
+                )
+            ).json()
+        )
+
+        assert len(response["products"]) == 1
+        assert response["continuationToken"] is not None
+        assert response["totalCount"] is not None
+
+        continuation_token = response["continuationToken"]
+
+        new_response = json.loads(
+            client.query_products(
+                models.ProductsAdvancedQuery(
+                    returnCount=True,
+                    filter="""family==\"AravindsTest\"""",
+                    continuationToken=continuation_token,
+                )
+            ).json()
+        )
+
+        assert len(new_response['products']) == 1
+        assert new_response['totalCount'] is not None
