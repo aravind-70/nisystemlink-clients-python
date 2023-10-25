@@ -145,3 +145,22 @@ class TestSuiteTestMonitorClient:
 
         assert len(new_response["products"]) == 2
         assert new_response["totalCount"] is not None
+
+    def test__delete_products(self, client):
+        ids = []
+        for part_no in range(4, 6):
+            product_details = models.ProductRequest(
+                partNumber=f"Test_{part_no}",
+                name=f"TestProduct_{part_no}",
+                family="AravindsTest",
+                keywords=["TestKeyword"],
+                properties={"TestKey": "TestValue"},
+                fileIds=["TestFileID"]
+            )
+            request_body = models.CreateProductsRequest(products=[product_details])
+            response = json.loads(client.create_products(request_body).json())
+            ids.append(response['products'][0]['id'])
+
+        for id in ids:
+            response = client.delete_product(id)
+            assert response is None
