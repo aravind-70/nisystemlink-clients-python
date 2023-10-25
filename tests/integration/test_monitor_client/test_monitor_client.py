@@ -58,18 +58,43 @@ class TestSuiteTestMonitorClient:
         assert len(response.json()) != 0
 
     def test__create_product(self, client, test_products):
-        product_details = json.loads(client.get_product(test_products[0]).json())
-        assert product_details["partNumber"] == "Test_1"
-        assert product_details["name"] == "TestProduct_1"
-        assert product_details["family"] == "AravindsTest"
-        assert product_details["keywords"] == ["TestKeyword"]
-        assert product_details["properties"] == {"TestKey": "TestValue"}
-        assert product_details["fileIds"] == ["TestFileID"]
+        product_details_response = json.loads(client.get_product(test_products[0]).json())
+        assert product_details_response["partNumber"] == "Test_1"
+        assert product_details_response["name"] == "TestProduct_1"
+        assert product_details_response["family"] == "AravindsTest"
+        assert product_details_response["keywords"] == ["TestKeyword"]
+        assert product_details_response["properties"] == {"TestKey": "TestValue"}
+        assert product_details_response["fileIds"] == ["TestFileID"]
 
-        timestamp_dt = datetime.fromisoformat(product_details["updatedAt"])
+        timestamp_dt = datetime.fromisoformat(product_details_response["updatedAt"])
         timestamp_unix = timestamp_dt.timestamp()
         now = datetime.now().timestamp()
         assert timestamp_unix == pytest.approx(now, abs=10)
+
+    def test__create_product_partial_success(self, create_product):
+        product_details_3 = models.ProductRequest(
+            partNumber="Test_3",
+            name="TestProduct_3",
+            family="AravindsTest",
+            keywords=["TestKeyword"],
+            properties={"TestKey": "TestValue"},
+            fileIds=["TestFileID"],
+        )
+        duplicate_product_details = models.ProductRequest(
+            partNumber="Test_3",
+            name="TestProduct_3",
+            family="AravindsTest",
+            keywords=["TestKeyword"],
+            properties={"TestKey": "TestValue"},
+            fileIds=["TestFileID"],
+        )
+
+        request_body = models.CreateProductsRequest(
+            products=[product_details_3, duplicate_product_details]
+        )
+        response = json.loads(create_product(request_body).json())
+
+        assert len(response["products"]) == 1
 
     def test__get_product_invalid_id(self, client):
         with pytest.raises(ApiException, match="404 Not Found"):
@@ -79,7 +104,6 @@ class TestSuiteTestMonitorClient:
         response = json.loads(
             client.get_products(take=1, continuationToken=None, returnCount=True).json()
         )
-
         assert response["totalCount"] is not None
         assert len(response["products"]) == 1
         assert response["continuationToken"] is not None
@@ -93,11 +117,12 @@ class TestSuiteTestMonitorClient:
         assert "totalCount" in str(exc_info)
 
     def test__query_product(self, client):
-
         response = json.loads(
             client.query_products(
                 models.ProductsAdvancedQuery(
-                    returnCount=True, take=1, filter="""family==\"AravindsTest\""""
+                    returnCount=True,
+                    take=1,
+                    filter="""family==\"AravindsTest\"""",
                 )
             ).json()
         )
@@ -118,5 +143,5 @@ class TestSuiteTestMonitorClient:
             ).json()
         )
 
-        assert len(new_response['products']) == 1
-        assert new_response['totalCount'] is not None
+        assert len(new_response["products"]) == 2
+        assert new_response["totalCount"] is not None
