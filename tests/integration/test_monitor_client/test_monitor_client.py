@@ -182,3 +182,62 @@ class TestSuiteTestMonitorClient:
 
         request_body = models.ProductDeleteRequest(ids=ids)
         response = client.delete_products(request_body)
+
+    def test__update_products(self, client, test_products):
+        updated_product = models.ProductUpdateRequest(
+            id=test_products[1],
+            name='Updated_TestProduct_2',
+            family='AravindsTest',
+            keywords=['UpdatedKeyword'],
+            properties={'UpdatedKey': 'UpdatedValue'},
+            fileIds=['UpdatedTestID']
+        )
+        request_body = models.CreateProductUpdateRequest(
+            products=[updated_product],
+            replace=True
+        )
+        response = client.update_products(request_body).json()
+        assert response['products'][0]['name'] == 'Updated_TestProduct_2'
+        assert response['products'][0]['keywords'] == ['UpdatedKeyword']
+        assert response['products'][0]['properties'] == {'UpdatedKey': 'UpdatedValue'}
+        assert response['products'][0]['fileIds'] == ['UpdatedTestID']
+
+    def test__update_product_without_replacing(self, client, test_products):
+        updated_product = models.ProductUpdateRequest(
+            id=test_products[0],
+            name='Updated_TestProduct_1',
+            family='AravindsTest',
+            keywords=['new_keyword'],
+            properties={'new_key': 'new_value'},
+            fileIds=['new_fileID']
+        )
+        request_body = models.CreateProductUpdateRequest(
+            products=[updated_product],
+            replace=False
+        )
+        response = client.update_products(request_body).json()
+        assert response['products'][0]['name'] == 'Updated_TestProduct_1'
+        assert len(response['products'][0]['keywords']) == 2
+        assert len(response['products'][0]['properties']) == 2
+        assert len(response['products'][0]['fileIds']) == 2
+    
+    def test_update_products_partial_success(self, client, test_products):
+        updated_product = models.ProductUpdateRequest(
+            id=test_products[0],
+            name='Updated_TestProduct_1',
+            family='AravindsTest',
+            keywords=['new_keyword_2'],
+            properties={'new_key_2': 'new_value_2'},
+            fileIds=['new_fileID_2'],      
+        )
+        invalid_product = models.ProductUpdateRequest(
+            id='invalid_id'
+        )
+
+        request_body = models.CreateProductUpdateRequest(
+            products=[updated_product, invalid_product],
+            replace=False
+        )
+        response = client.update_products(request_body).json()
+        assert len(response['products']) == 1
+        assert 'failed' in response

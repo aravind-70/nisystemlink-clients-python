@@ -120,7 +120,7 @@ class TestMonitorClient(BaseClient):
         ...
 
     @post("products")
-    def create_products(self, products: models.CreateProductRequest) -> models.CreateProductResponse:
+    def create_products(self, products: models.CreateProductsRequest) -> models.CreateProductsResponse:
         ...
 
     @get("products/{productId}", args=[Path, Body])
@@ -128,17 +128,17 @@ class TestMonitorClient(BaseClient):
         ...
 
     @delete("products/{productId}", args=[Path, Body])
-    def delete_product(self, productId: str, deleteSteps: Query(type=bool) = True):
+    def delete_product(self, productId: str):
         ...
 
     @post("query-product-values", args=[Path, Body])
     def query_product_values(self, productQuery: Body(type=models.ProductValuesQuery)):
         ...
 
-    # @post("update-products", args=[Path, Body])
-    # def update_products(self, request: Body(type=models.UpdateTestProductsRequest)):
-    #     ...
+    @post("update-products", args=[Path, Body])
+    def update_products(self, request: Body(type=models.CreateProductUpdateRequest)):
+        ...
 
     @post("delete-products", args=[Path, Body])
-    def delete_products(self, requestBody: Body(type=models.TestStepsDeleteRequest)):
+    def delete_products(self, requestBody: Body(type=models.ProductDeleteRequest)):
         ...

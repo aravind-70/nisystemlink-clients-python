@@ -1032,16 +1032,23 @@ class PathsQueryResponse(BaseModel):
     continuationToken: str
     totalCount: int
 
-class CreateProductRequest(BaseModel):
+class CreateProductsRequest(BaseModel):
     products: List[ProductRequest]
 
-class CreateProductResponse(BaseModel):
+class CreateProductsResponse(BaseModel):
     products: List[ProductResponse]
 
 class ProductsQueryResponse(BaseModel):
     products: List[ProductResponse]
     continuationToken: str
     totalCount: str
+
+class ProductDeleteRequest(BaseModel):
+    ids: List[str]
+
+class CreateProductUpdateRequest(BaseModel):
+    products: List[ProductUpdateRequest]
+    replace: str
 
 Error.update_forward_refs()
 TestStepRequest.update_forward_refs()
