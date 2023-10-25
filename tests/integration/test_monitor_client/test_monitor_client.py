@@ -39,7 +39,7 @@ def test_products(create_product):
             fileIds=["TestFileID"],
         )
 
-        request_body = models.CreateProductRequest(products=[product_details])
+        request_body = models.CreateProductsRequest(products=[product_details])
         response = json.loads(create_product(request_body).json())
 
         ids.append(response['products'][0]['id'])
@@ -72,6 +72,16 @@ class TestSuiteTestMonitorClient:
     def test__get_product_invalid_id(self, client):
         with pytest.raises(ApiException, match="404 Not Found"):
             client.get_product("invalid product id")
+
+    def test__get_products(self, client):
+        response = json.loads(client.get_products(
+            take=1,
+            continuationToken=None,
+            returnCount=True
+        ).json())
+        assert response['totalCount'] is not None
+        assert len(response['products']) == 1
+        assert response['continuationToken'] is not None
 
     # def test__query_product__all(self, client):
     #     query_filter = models.ProductsAdvancedQuery(
