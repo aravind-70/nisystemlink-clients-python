@@ -16,7 +16,7 @@ from uplink import Body, Field, Path, Query
 from . import models
 
 
-class TestMonitorClient(BaseClient):
+class TestMonitorClientProducts(BaseClient):
     def __init__(self, configuration: Optional[core.HttpConfiguration] = None):
         """Initialize an instance.
 
@@ -36,9 +36,9 @@ class TestMonitorClient(BaseClient):
 
     # versioning
 
-    @get("")
-    def api_info(self):
-        ...
+    # @get("")
+    # def api_info(self) -> models.V2Operations:
+    #     ...
 
     # # results
 
@@ -103,11 +103,19 @@ class TestMonitorClient(BaseClient):
     #     self, queryFilter: Body(type=models.PathsAdvancedQuery)
     # ) -> models.PathsQueryResponse:
     #     ...
+
+    @post("products")
+    def create_products(self, products: models.CreateProductsRequest) -> models.CreateProductsResponse:
+        ...
       
     @post("query-products", args=[Path, Body])
     def query_products(
         self, queryFilter: Body(type=models.ProductsAdvancedQuery)
     ) -> models.ProductsQueryResponse:
+        ...
+
+    @get("products/{productId}", args=[Path, Body])
+    def get_product(self, productId: str) -> models.ProductResponseObject:
         ...
 
     @get("products", args=[Path, Body])
@@ -119,16 +127,12 @@ class TestMonitorClient(BaseClient):
     ) -> models.ProductsQueryResponse:
         ...
 
-    @post("products")
-    def create_products(self, products: models.CreateProductsRequest) -> models.CreateProductsResponse:
-        ...
-
-    @get("products/{productId}", args=[Path, Body])
-    def get_product(self, productId: str) -> models.ProductResponseObject:
-        ...
-
     @delete("products/{productId}", args=[Path, Body])
-    def delete_product(self, productId: str):
+    def delete_product(self, productId: str) -> None:
+        ...
+
+    @post("delete-products", args=[Path, Body])
+    def delete_products(self, requestBody: Body(type=models.ProductDeleteRequest)) -> None:
         ...
 
     @post("query-product-values", args=[Path, Body])
@@ -136,9 +140,5 @@ class TestMonitorClient(BaseClient):
         ...
 
     @post("update-products", args=[Path, Body])
-    def update_products(self, request: Body(type=models.CreateProductUpdateRequest)):
-        ...
-
-    @post("delete-products", args=[Path, Body])
-    def delete_products(self, requestBody: Body(type=models.ProductDeleteRequest)):
+    def update_products(self, request: Body(type=models.CreateProductUpdateRequest)) -> models.ProductUpdateResponse:
         ...

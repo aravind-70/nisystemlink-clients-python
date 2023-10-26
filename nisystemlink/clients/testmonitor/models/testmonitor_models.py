@@ -1,8 +1,10 @@
 from typing import List
+
 from ._test_monitor_models import (
     ProductRequestObject,
     ProductResponseObject,
     ProductUpdateRequestObject,
+    Error,
 )
 from nisystemlink.clients.core._uplink._json_model import JsonModel
 
@@ -17,8 +19,8 @@ class CreateProductsResponse(JsonModel):
 
 class ProductsQueryResponse(JsonModel):
     products: List[ProductResponseObject]
-    continuationToken: str
-    totalCount: str
+    continuation_token: str
+    total_count: str
 
 
 class ProductDeleteRequest(JsonModel):
@@ -32,3 +34,7 @@ class CreateProductUpdateRequest(JsonModel):
 
 class QueryProductValuesResponse(JsonModel):
     List[str]
+
+
+class ProductUpdateResponse(JsonModel):
+    products: List[ProductResponseObject]
