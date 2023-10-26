@@ -105,9 +105,11 @@ class TestMonitorClientProducts(BaseClient):
     #     ...
 
     @post("products")
-    def create_products(self, products: models.CreateProductsRequest) -> models.CreateProductsResponse:
+    def create_products(
+        self, products: models.CreateProductsRequest
+    ) -> models.CreateProductsResponse:
         ...
-      
+
     @post("query-products", args=[Path, Body])
     def query_products(
         self, queryFilter: Body(type=models.ProductsAdvancedQuery)
@@ -140,5 +142,7 @@ class TestMonitorClientProducts(BaseClient):
         ...
 
     @post("update-products", args=[Path, Body])
-    def update_products(self, request: Body(type=models.CreateProductUpdateRequest)) -> models.ProductUpdateResponse:
+    def update_products(
+        self, request: Body(type=models.CreateProductUpdateRequest)
+    ) -> models.ProductUpdateResponse:
         ...

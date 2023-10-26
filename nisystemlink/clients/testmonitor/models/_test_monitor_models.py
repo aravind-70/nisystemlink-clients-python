@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from nisystemlink.clients.core._uplink._json_model import JsonModel
-from pydantic import Field, conint
+from pydantic import conint, Field
 
 
 class Error(JsonModel):
