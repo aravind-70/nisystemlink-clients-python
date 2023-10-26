@@ -1169,27 +1169,6 @@ class TestStepResponseObject(JsonModel):
     The workspace the test step belongs to
     """
 
-class CreateProductsRequest(JsonModel):
-    products: List[ProductRequestObject]
 
-class CreateProductsResponse(JsonModel):
-    products: List[ProductResponseObject]
-
-class ProductsQueryResponse(JsonModel):
-    products: List[ProductResponseObject]
-    continuationToken: str
-    totalCount: str
-
-class ProductDeleteRequest(JsonModel):
-    ids: List[str]
-
-class CreateProductUpdateRequest(JsonModel):
-    products: List[ProductUpdateRequestObject]
-    replace: str
-
-class QueryProductValuesResponse(JsonModel):
-    List[str]
-
-
-# Error.model_rebuild()
-# TestStepRequestObject.model_rebuild()
+Error.update_forward_refs()
+TestStepRequestObject.update_forward_refs()

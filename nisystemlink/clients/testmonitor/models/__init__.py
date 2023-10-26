@@ -1,1 +1,2 @@
-from ._testmonitor_models import *
+from ._test_monitor_models import *
+from .testmonitor_models import *
