@@ -16,7 +16,7 @@ from uplink import Body, Field, Path, Query
 from . import models
 
 
-class TestMonitorClientProducts(BaseClient):
+class TestMonitorClient(BaseClient):
     def __init__(self, configuration: Optional[core.HttpConfiguration] = None):
         """Initialize an instance.
 
@@ -110,12 +110,6 @@ class TestMonitorClientProducts(BaseClient):
     ) -> models.CreateProductsResponse:
         ...
 
-    @post("query-products", args=[Path, Body])
-    def query_products(
-        self, queryFilter: Body(type=models.ProductsAdvancedQuery)
-    ) -> models.ProductsQueryResponse:
-        ...
-
     @get("products/{productId}", args=[Path, Body])
     def get_product(self, productId: str) -> models.ProductResponseObject:
         ...
@@ -129,6 +123,12 @@ class TestMonitorClientProducts(BaseClient):
     ) -> models.ProductsQueryResponse:
         ...
 
+    @post("query-products", args=[Path, Body])
+    def query_products(
+        self, queryFilter: Body(type=models.ProductsAdvancedQuery)
+    ) -> models.ProductsQueryResponse:
+        ...
+
     @delete("products/{productId}", args=[Path, Body])
     def delete_product(self, productId: str) -> None:
         ...
@@ -137,12 +137,13 @@ class TestMonitorClientProducts(BaseClient):
     def delete_products(self, requestBody: Body(type=models.ProductDeleteRequest)) -> None:
         ...
 
-    @post("query-product-values", args=[Path, Body])
-    def query_product_values(self, productQuery: Body(type=models.ProductValuesQuery)):
-        ...
-
     @post("update-products", args=[Path, Body])
     def update_products(
         self, request: Body(type=models.CreateProductUpdateRequest)
     ) -> models.ProductUpdateResponse:
         ...
+
+    @post("query-product-values", args=[Path, Body])
+    def query_product_values(self, productQuery: Body(type=models.ProductValuesQuery)):
+        ...
+

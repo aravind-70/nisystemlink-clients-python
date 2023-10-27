@@ -89,7 +89,6 @@ def test_tables(create_table):
 class TestDataFrame:
     def test__api_info__returns(self, client):
         response = client.api_info()
-
         assert len(response.dict()) != 0
 
     def test__create_table__metadata_is_correct(

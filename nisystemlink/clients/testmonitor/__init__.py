@@ -1,3 +1,3 @@
-from ._testmonitor_client_products import TestMonitorClientProducts
+from ._testmonitor_client import TestMonitorClient
 
 # flake8: noqa
