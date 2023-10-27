@@ -11,12 +11,14 @@ from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient, models
 
 # Constants used in request and response.
-FILTER = 'family=="TestProductsApi"'
 FAMILY = "TestProductsApi"
 TEST_KEYWORD = ["TestKeyword"]
 PROPERTY = {"TestKey": "TestValue"}
 FILE_ID = ["TestFileID"]
-
+FILTER = 'family=="TestProductsApi"'
+INVALID_ID = "invalid id"
+FAILED = "failed"
+ERROR = "error"
 
 @pytest.fixture(scope="class")
 def client(enterprise_config):
@@ -86,15 +88,27 @@ class TestSuiteTestMonitorClient:
     """Class contains a set of test methods to test Products API."""
 
     def test__create_products(self, create_product, product_request_body):
-        response = create_product(product_request_body(3))
+        request_body = product_request_body(3)
+        response = create_product(request_body)
+
         assert len(response.products) == 1
 
-    def test__create_products__partial_success(self, create_product, product_request_body):
-        with pytest.raises(ValidationError) as exc_info:
-            create_product(product_request_body(3))
+        assert response.products[0].part_number == request_body.products[0].part_number
+        assert response.products[0].name == request_body.products[0].name
+        assert response.products[0].family == request_body.products[0].family
+        assert response.products[0].keywords == request_body.products[0].keywords
+        assert response.products[0].properties == request_body.products[0].properties
+        assert response.products[0].file_ids == request_body.products[0].file_ids
 
-        assert "error" in str(exc_info)
-        assert "failed" in str(exc_info)
+        assert response.FAILED is None
+        assert response.ERROR is None
+
+    def test__create_products__partial_success(self, create_product, product_request_body):
+        response = create_product(product_request_body(3))
+
+        assert len(response.products) == 0
+        assert response.ERROR is not None
+        assert response.FAILED is not None
 
     def test__get_product(self, client, create_test_products):
         product_details = client.get_product(create_test_products[0].products[0].id)
@@ -112,7 +126,7 @@ class TestSuiteTestMonitorClient:
 
     def test__get_product__invalid_id(self, client):
         with pytest.raises(ApiException, match="404 Not Found"):
-            client.get_product("invalid id")
+            client.get_product(INVALID_ID)
 
     def test__get_products(self, client):
         response = client.get_products(take=1, continuationToken=None, returnCount=True)
@@ -122,10 +136,8 @@ class TestSuiteTestMonitorClient:
         assert response.continuation_token is not None
 
     def test__get_products__without_return_count(self, client):
-        with pytest.raises(ValidationError) as exc_info:
-            client.get_products(take=1, continuationToken=None, returnCount=False)
-
-        assert "totalCount" in str(exc_info)
+        response = client.get_products(take=1, continuationToken=None, returnCount=False)
+        assert response.total_count is None
 
     def test__query_product(self, client):
         first_page_response = client.query_products(
@@ -237,16 +249,16 @@ class TestSuiteTestMonitorClient:
             fileIds=["new_fileID_2"],
         )
 
-        invalid_product = models.ProductUpdateRequestObject(id="invalid id")
+        invalid_product = models.ProductUpdateRequestObject(id=INVALID_ID)
 
         request_body = models.CreateProductUpdateRequest(
             products=[updated_product, invalid_product], replace=False
         )
-        with pytest.raises(ValidationError) as exc_info:
-            client.update_products(request_body)
 
-        assert "failed" in str(exc_info)
-        assert "error" in str(exc_info)
+        response = client.update_products(request_body)
+
+        assert response.FAILED is not None
+        assert response.ERROR is not None
 
     def test__query_product_values(self, client):
         request_body = models.ProductValuesQuery(
