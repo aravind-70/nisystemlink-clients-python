@@ -11,7 +11,7 @@ from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient, models
 
 # Constants used in request and response.
-FILTER = "family==\"TestProductsApi\""
+FILTER = 'family=="TestProductsApi"'
 FAMILY = "TestProductsApi"
 TEST_KEYWORD = ["TestKeyword"]
 PROPERTY = {"TestKey": "TestValue"}
@@ -60,20 +60,24 @@ def create_test_products(create_product):
 
 
 @pytest.fixture(scope="class")
-def product_request_body(part_no):
+def product_request_body():
     """Fixture to create a request body object of create_products API."""
-    product_request_object = models.ProductRequestObject(
-        partNumber=f"Test_{part_no}",
-        name=f"TestProduct_{part_no}",
-        family=FAMILY,
-        keywords=TEST_KEYWORD,
-        properties=PROPERTY,
-        fileIds=FILE_ID,
-    )
 
-    request_body = models.CreateProductsRequest(products=[product_request_object])
+    def _product_request_body(part_no):
+        product_request_object = models.ProductRequestObject(
+            partNumber=f"Test_{part_no}",
+            name=f"TestProduct_{part_no}",
+            family=FAMILY,
+            keywords=TEST_KEYWORD,
+            properties=PROPERTY,
+            fileIds=FILE_ID,
+        )
 
-    return request_body
+        request_body = models.CreateProductsRequest(products=[product_request_object])
+
+        return request_body
+
+    yield _product_request_body
 
 
 @pytest.mark.enterprise
@@ -216,7 +220,7 @@ class TestSuiteTestMonitorClient:
         )
 
         request_body = models.CreateProductUpdateRequest(products=[updated_product], replace=False)
-        response = client.update_products(request_body)    
+        response = client.update_products(request_body)
 
         assert response.products[0].name == updated_product.name
         assert len(response.products[0].keywords) == len(existing_product.keywords) + 1
