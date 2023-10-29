@@ -1,17 +1,21 @@
 """Contains Custom Models for Product APIs."""
 
 # Python Modules
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 # Relative Modules
 from nisystemlink.clients.core._uplink._json_model import JsonModel
 
 from ._test_monitor_models import (
+    Operations1,
     ProductRequestObject,
     ProductResponseObject,
     ProductUpdateRequestObject,
     Error
 )
+
+class ApiInfo(JsonModel):
+    operations: Operations1
 
 
 class CreateProductsRequest(JsonModel):
@@ -42,7 +46,7 @@ class ProductsQueryResponse(JsonModel):
     """
     Array of products.
     """
-    continuation_token: str
+    continuation_token: Optional[str]
     """
     A token which allows the user to resume this query at the next item in the matching product set. In order to continue paginating a query, pass this token to the service on a subsequent request. The service will respond with a new continuation token. To paginate a set of products, continue sending requests with the newest continuation token provided by the service, until this value is null.
     """
@@ -83,7 +87,3 @@ class ProductUpdateResponse(JsonModel):
     """
     Default error model.
     """
-
-
-# class QueryProductValuesResponse(JsonModel):
-#     List[str]

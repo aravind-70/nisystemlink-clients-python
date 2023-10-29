@@ -36,9 +36,9 @@ class TestMonitorClient(BaseClient):
 
     # versioning
 
-    # @get("")
-    # def api_info(self) -> models.V2Operations:
-    #     ...
+    @get("")
+    def api_info(self) -> models.ApiInfo:
+        ...
 
     # # results
 

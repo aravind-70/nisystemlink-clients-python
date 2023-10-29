@@ -74,6 +74,7 @@ class V1Operations(JsonModel):
 
 class Operations1(JsonModel):
     get_results: Optional[Operation] = Field(None, alias='getResults')
+    get_results_property_keys: Optional[Operation] = Field(None, alias='getResultsPropertyKeys')
     query_results: Optional[Operation] = Field(None, alias='queryResults')
     create_results: Optional[Operation] = Field(None, alias='createResults')
     update_results: Optional[Operation] = Field(None, alias='updateResults')
@@ -762,7 +763,7 @@ class ProductsAdvancedQuery(JsonModel):
     """
     The query filter in Dynamic Linq
     """
-    substitutions: Optional[List[Dict[str, Any]]] = Field(None, example=['cRIO'])
+    substitutions: Optional[List[Any]] = Field(None, example=['cRIO'])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -798,7 +799,7 @@ class PathsAdvancedQuery(JsonModel):
     """
     The query filter in Dynamic Linq
     """
-    substitutions: Optional[List[Dict[str, Any]]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Any]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
