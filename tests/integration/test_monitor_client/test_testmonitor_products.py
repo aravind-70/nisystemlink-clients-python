@@ -4,7 +4,6 @@ from datetime import datetime
 
 # Third party modules
 import pytest
-
 # Relative Modules
 from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient
@@ -106,7 +105,6 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__create_products(self, create_product, product_request_object):
         """Test the case of a completely successful create products API."""
-        # Create a product and check the response.
         request_object = [product_request_object(3)]
         request_body = CreateProductsRequest(products=request_object)
         response = create_product(request_body)
@@ -139,8 +137,9 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__create_products__partial_success(self, create_product, product_request_object):
         """Test the case of a partially successful create products API."""
-        # Create multiple products with one of products as invalid and check the response.
         request_objects = [product_request_object(3), product_request_object(4)]
+
+        # Since a product with part number 3 is already exists, request becomes partially successful.
         request_body = CreateProductsRequest(products=request_objects)
         response = create_product(request_body)
 
@@ -262,7 +261,8 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__detele_products(self, client):
         """Test the delete products API."""
-        ids = []
+        product_ids = []
+
         for product_num in range(6, 8):
             product_details = ProductRequestObject(
                 part_number=f"{PART_NUMBER_PREFIX}_{product_num}",
@@ -275,16 +275,16 @@ class TestSuiteTestMonitorClientProducts:
 
             request_body = CreateProductsRequest(products=[product_details])
             response = client.create_products(request_body)
-            ids.append(response.products[FIRST_PRODUCT].id)
+            product_ids.append(response.products[FIRST_PRODUCT].id)
 
-        request_body = ProductDeleteRequest(ids=ids)
+        request_body = ProductDeleteRequest(ids=product_ids)
         response = client.delete_products(request_body)
 
         assert response is None
 
-        for id in ids:
+        for product_id in product_ids:
             with pytest.raises(ApiException, match="404 Not Found"):
-                client.get_product(id)
+                client.get_product(product_id)
 
     def test__update_products(self, client, create_test_products):
         """Test the case of update products API with replace as True."""
@@ -332,8 +332,6 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__update_products__partial_success(self, client, create_test_products):
         """Test the case of a partially successful update products API."""
-
-        # Update multiple products with one of products as invalid and check the response.
         valid_updated_product = ProductUpdateRequestObject(
             id=create_test_products[FIRST_PRODUCT].id,
             name="Updated_Product_1",
@@ -342,8 +340,9 @@ class TestSuiteTestMonitorClientProducts:
             properties={"new_key_2": "new_value_2"},
             file_ids=["new_fileID_2"],
         )
-
         invalid_product = ProductUpdateRequestObject(id=INVALID_ID)
+
+        # Update multiple products with one of the products being invalid and check the response.
         request_body = CreateProductUpdateRequest(
             products=[valid_updated_product, invalid_product],
             replace=False,
