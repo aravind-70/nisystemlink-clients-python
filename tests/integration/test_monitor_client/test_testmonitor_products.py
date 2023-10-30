@@ -35,13 +35,13 @@ PRODUCT_NAME_PREFIX = "Product"
 
 @pytest.fixture(scope="class")
 def client(enterprise_config):
-    """Fixture to create a TestMonitorClient instance."""
+    """Fixture to create a TestMonitorClient object."""
     return TestMonitorClient(enterprise_config)
 
 
 @pytest.fixture(scope="class")
 def create_product(client):
-    """Fixture to return a factory that creates products."""
+    """Fixture to return a object that creates products."""
     product_ids = []
 
     def _create_product(product):
@@ -62,12 +62,12 @@ def product_request_body():
 
     def _product_request_body(product_no):
         product_request_object = ProductRequestObject(
-            partNumber=f"{PART_NUMBER_PREFIX}_{product_no}",
+            part_number=f"{PART_NUMBER_PREFIX}_{product_no}",
             name=f"{PRODUCT_NAME_PREFIX}_{product_no}",
             family=FAMILY,
             keywords=TEST_KEYWORD,
             properties=PROPERTY,
-            fileIds=FILE_ID,
+            file_ids=FILE_ID,
         )
 
         return product_request_object
@@ -94,11 +94,11 @@ def create_test_products(create_product, product_request_body):
 
 @pytest.mark.enterprise
 @pytest.mark.integration
-class TestSuiteTestMonitorClienProductst:
+class TestSuiteTestMonitorClientProducts:
     """Class contains a set of test methods to test Products API of TestMonitor."""
 
     def test__create_products(self, create_product, product_request_body):
-        """Test the case of complete success of create products API."""
+        """Test the case of a completely successful "create products" API."""
         request_object = [product_request_body(3)]
         request_body = CreateProductsRequest(products=request_object)
         response = create_product(request_body)
@@ -116,7 +116,7 @@ class TestSuiteTestMonitorClienProductst:
         assert response.error is None
 
     def test__create_products__partial_success(self, create_product, product_request_body):
-        """Test the case of partial success of create products API."""
+        """Test the case of a partially successful "create products" API."""
         request_objects = [product_request_body(3), product_request_body(4)]
         request_body = CreateProductsRequest(products=request_objects)
         response = create_product(request_body)
@@ -154,12 +154,12 @@ class TestSuiteTestMonitorClienProductst:
                 order_by=ProductQueryOrderByField(PART_NUMBER),
                 descending=False,
                 projection=[ProductField(PART_NUMBER)],
-                take=1,
+                take=4,
                 return_count=True,
             )
         )
 
-        assert len(first_page_response.products) == 1
+        assert len(first_page_response.products) == 4
         assert first_page_response.continuation_token is not None
         assert first_page_response.total_count is not None
 
@@ -177,8 +177,9 @@ class TestSuiteTestMonitorClienProductst:
             )
         )
 
-        assert len(second_page_response.products) == 3
+        assert len(second_page_response.products) == 0
         assert second_page_response.total_count is not None
+        assert second_page_response.continuation_token is None
 
     def test__get_products(self, client):
         """Test the case of presence of return count of get products API."""
@@ -213,10 +214,10 @@ class TestSuiteTestMonitorClienProductst:
     def test__detele_products(self, client):
         """Test the delete products API."""
         ids = []
-        for part_no in range(6, 8):
+        for product_no in range(6, 8):
             product_details = ProductRequestObject(
-                partNumber=f"{PART_NUMBER_PREFIX}_{part_no}",
-                name=f"{PRODUCT_NAME_PREFIX}_{part_no}",
+                partNumber=f"{PART_NUMBER_PREFIX}_{product_no}",
+                name=f"{PRODUCT_NAME_PREFIX}_{product_no}",
                 family=FAMILY,
                 keywords=TEST_KEYWORD,
                 properties=PROPERTY,
