@@ -1,8 +1,8 @@
 """Implementation of TestMonitorClient."""
-
+# Python Module
 from typing import Optional
 
-
+# Relative modules
 from nisystemlink.clients import core
 from nisystemlink.clients.core._uplink._base_client import BaseClient
 from nisystemlink.clients.core._uplink._methods import delete, get, post
@@ -24,31 +24,39 @@ class TestMonitorClient(BaseClient):
                 is used.
 
         Raises:
-            ApiException: if unable to communicate with the DataFrame Service.
+            ApiException: if unable to communicate with the TestMonitor Service.
         """
         if configuration is None:
             configuration = core.JupyterHttpConfiguration()
 
         super().__init__(configuration, "/nitestmonitor/v2/")
 
-    # versioning
-
-    @get("")
-    def api_info(self) -> models.ApiInfo:
-        """Get the information about the available APIs."""
-        ...
-
-    # Products APIs.
+    # products
     @post("products")
     def create_products(
         self, products: models.CreateProductsRequest
     ) -> models.CreateProductsResponse:
-        """Create products using the create product API."""
+        """Create a new products with the provided product details.
+
+        Args:
+            products: The request to create the products.
+
+        Returns:
+            The product details of the newly created products.
+
+        """
         ...
 
     @get("products/{productId}", args=[Path, Body])
     def get_product(self, productId: str) -> models.ProductResponseObject:
-        """Get product details using the product id."""
+        """Retrieves the product details single product identified by its ID.
+
+        Args:
+            productId: Unique ID of a product.
+
+        Returns:
+            The details of the product.
+        """
         ...
 
     @get("products", args=[Path, Body])
@@ -58,34 +66,78 @@ class TestMonitorClient(BaseClient):
         take: Query(type=int),
         returnCount: Query(type=bool),
     ) -> models.ProductsQueryResponse:
-        """Get a set of products."""
+        """Get product details of multiple products.
+
+        Args:
+            continuationToken: The token used to paginate results.
+            take: Limits the returned list of products to the specified number
+            returnCount: Total count of the products available.
+
+        Returns:
+            The list of products.
+        """
         ...
 
     @post("query-products", args=[Path, Body])
     def query_products(
-        self, queryFilter: Body(type=models.ProductsAdvancedQuery)
+        self, query_filter: Body(type=models.ProductsAdvancedQuery)
     ) -> models.ProductsQueryResponse:
-        """Get a set of products based on the queryFilter."""
+        """Get a set of products based on the queryFilter.
+
+        Args:
+            query_filter: The filter to be applied when querying for products.
+
+        Returns:
+            The list of products.
+        """
         ...
 
     @delete("products/{productId}", args=[Path, Body])
-    def delete_product(self, productId: str) -> None:
-        """Delete a product using the product id."""
+    def delete_product(self, productId: str):
+        """Delete a product using the product id.
+
+        Args:
+            product_id: The id of the product to be deleted.
+
+        Returns:
+            None
+        """
         ...
 
     @post("delete-products", args=[Path, Body])
-    def delete_products(self, requestBody: Body(type=models.ProductDeleteRequest)) -> None:
-        """Delete set of products using the list of product ids given in the request body."""
+    def delete_products(self, request_body: Body(type=models.ProductDeleteRequest)) -> None:
+        """Delete set of products using the list of product ids given in the request body.
+
+        Args:
+            request_body: The list of ids to be deleted.
+
+        Returns:
+            None
+        """
         ...
 
     @post("update-products", args=[Path, Body])
     def update_products(
-        self, request: Body(type=models.CreateProductUpdateRequest)
+        self, request_body: Body(type=models.CreateProductUpdateRequest)
     ) -> models.ProductUpdateResponse:
-        """Update a set of products."""
+        """Update a set of products.
+
+        Args:
+            request_body: The product details to be updated with.
+
+        Returns:
+            The updated product response.
+        """
         ...
 
     @post("query-product-values", args=[Path, Body])
-    def query_product_values(self, productQuery: Body(type=models.ProductValuesQuery)):
-        """Get product values or fields using the productQuery."""
+    def query_product_values(self, product_query: Body(type=models.ProductValuesQuery)):
+        """Get product values or fields using the product_query.
+
+        Args:
+            product_query: The fields to be queried based on filter.
+
+        Returns:
+            The list of values based on the product_query.
+        """
         ...
