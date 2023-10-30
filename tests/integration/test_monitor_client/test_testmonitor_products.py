@@ -28,7 +28,7 @@ FILE_ID = ["TestFileID"]
 FILTER = "family == @0"
 SUBSTITUTIONS = ["TestProductsApi"]
 NAME = "name"
-INVALID_ID = "invalid id"
+INVALID_ID = "invalid_id"
 PART_NUMBER = "PART_NUMBER"
 PART_NUMBER_PREFIX = "Test"
 PRODUCT_NAME_PREFIX = "Product"
@@ -57,14 +57,14 @@ def create_product(client):
 
     yield _create_product
 
-    # Delete the created products after test is completed.
+    # Delete the created products after the tests are completed.
     request_body = ProductDeleteRequest(ids=product_ids)
     client.delete_products(request_body)
 
 
 @pytest.fixture(scope="class")
 def product_request_object():
-    """Fixture to create a request body object of create_products API."""
+    """Fixture to create a request body object of create products API."""
 
     def _product_request_object(product_num):
         product_request_object = ProductRequestObject(
@@ -106,6 +106,7 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__create_products(self, create_product, product_request_object):
         """Test the case of a completely successful create products API."""
+        # Create a product and check the response.
         request_object = [product_request_object(3)]
         request_body = CreateProductsRequest(products=request_object)
         response = create_product(request_body)
@@ -138,6 +139,7 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__create_products__partial_success(self, create_product, product_request_object):
         """Test the case of a partially successful create products API."""
+        # Create multiple products with one of products as invalid and check the response.
         request_objects = [product_request_object(3), product_request_object(4)]
         request_body = CreateProductsRequest(products=request_objects)
         response = create_product(request_body)
@@ -220,6 +222,7 @@ class TestSuiteTestMonitorClientProducts:
 
         continuation_token = response.continuation_token
 
+        # Loop until all the products are returned.
         while continuation_token is not None:
             response = client.get_products(
                 take=None,
@@ -247,12 +250,12 @@ class TestSuiteTestMonitorClientProducts:
         )
 
         request_body = CreateProductsRequest(products=[product_details])
-        response = client.create_products(request_body)
+        create_product_response = client.create_products(request_body)
+        id = create_product_response.products[FIRST_PRODUCT].id
 
-        id = response.products[FIRST_PRODUCT].id
-        response = client.delete_product(id)
+        delete_product_response = client.delete_product(id)
 
-        assert response is None
+        assert delete_product_response is None
 
         with pytest.raises(ApiException, match="404 Not Found"):
             client.get_product(id)
@@ -329,7 +332,9 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__update_products__partial_success(self, client, create_test_products):
         """Test the case of a partially successful update products API."""
-        updated_product = ProductUpdateRequestObject(
+
+        # Update multiple products with one of products as invalid and check the response.
+        valid_updated_product = ProductUpdateRequestObject(
             id=create_test_products[FIRST_PRODUCT].id,
             name="Updated_Product_1",
             family=FAMILY,
@@ -340,7 +345,7 @@ class TestSuiteTestMonitorClientProducts:
 
         invalid_product = ProductUpdateRequestObject(id=INVALID_ID)
         request_body = CreateProductUpdateRequest(
-            products=[updated_product, invalid_product],
+            products=[valid_updated_product, invalid_product],
             replace=False,
         )
 
