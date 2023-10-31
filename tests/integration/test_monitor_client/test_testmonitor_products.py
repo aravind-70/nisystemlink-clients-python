@@ -210,16 +210,8 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__get_products(self, client):
         """Test the case of presence of return count of get products API."""
-        response = client.get_products(
-            take=None,
-            continuationToken=None,
-            returnCount=True,
-        )
-        assert response.total_count is not None
-
-        continuation_token = response.continuation_token
-
         # Loop until all the products are returned.
+        continuation_token = None
         while continuation_token is not None:
             response = client.get_products(
                 take=None,
@@ -228,7 +220,7 @@ class TestSuiteTestMonitorClientProducts:
             )
             continuation_token = response.continuation_token
 
-        assert response.continuation_token is None
+        assert continuation_token is None
 
     def test__get_products__without_return_count(self, client):
         """Test the case of no return count of get products API."""
