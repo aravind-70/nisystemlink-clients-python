@@ -35,7 +35,7 @@ class TestMonitorClient(BaseClient):
     @post("products")
     def create_products(
         self, products: models.CreateProductsRequest
-    ) -> models.CreateProductsResponse:
+    ) -> models.ProductsSuccessResponse:
         """Create a new products with the provided product details.
 
         Args:
@@ -47,7 +47,7 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @get("products/{productId}", args=[Path, Body])
+    @get("products/{productId}")
     def get_product(self, productId: str) -> models.ProductResponseObject:
         """Retrieves the product details single product identified by its ID.
 
@@ -59,12 +59,12 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @get("products", args=[Path, Body])
+    @get("products", args=[Query, Query, Query])
     def get_products(
         self,
-        continuationToken: Query(type=str),
-        take: Query(type=int),
-        returnCount: Query(type=bool),
+        continuationToken: str,
+        take: int,
+        returnCount: bool,
     ) -> models.ProductsQueryResponse:
         """Get product details of multiple products.
 
@@ -78,9 +78,9 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @post("query-products", args=[Path, Body])
+    @post("query-products")
     def query_products(
-        self, query_filter: Body(type=models.ProductsAdvancedQuery)
+        self, query_filter: models.ProductsAdvancedQuery
     ) -> models.ProductsQueryResponse:
         """Get a set of products based on the queryFilter.
 
@@ -92,8 +92,8 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @delete("products/{productId}", args=[Path, Body])
-    def delete_product(self, productId: str):
+    @delete("products/{productId}")
+    def delete_product(self, productId: str) -> None:
         """Delete a product using the product id.
 
         Args:
@@ -104,8 +104,8 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @post("delete-products", args=[Path, Body])
-    def delete_products(self, request_body: Body(type=models.ProductDeleteRequest)) -> None:
+    @post("delete-products")
+    def delete_products(self, request_body: models.ProductDeleteRequest) -> None:
         """Delete set of products using the list of product ids given in the request body.
 
         Args:
@@ -116,10 +116,10 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @post("update-products", args=[Path, Body])
+    @post("update-products")
     def update_products(
-        self, request_body: Body(type=models.CreateProductUpdateRequest)
-    ) -> models.ProductUpdateResponse:
+        self, request_body: models.UpdateProductsRequest
+    ) -> models.ProductsSuccessResponse:
         """Update a set of products.
 
         Args:
@@ -130,8 +130,8 @@ class TestMonitorClient(BaseClient):
         """
         ...
 
-    @post("query-product-values", args=[Path, Body])
-    def query_product_values(self, product_query: Body(type=models.ProductValuesQuery)):
+    @post("query-product-values")
+    def query_product_values(self, product_query: models.ProductValuesQuery):
         """Get product values or fields using the product_query.
 
         Args:

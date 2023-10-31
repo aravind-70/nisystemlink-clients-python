@@ -9,7 +9,7 @@ from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient
 from nisystemlink.clients.testmonitor.models import (
     CreateProductsRequest,
-    CreateProductUpdateRequest,
+    UpdateProductsRequest,
     ProductDeleteRequest,
     ProductField,
     ProductQueryOrderByField,
@@ -31,8 +31,6 @@ INVALID_ID = "invalid_id"
 PART_NUMBER = "PART_NUMBER"
 PART_NUMBER_PREFIX = "Test"
 PRODUCT_NAME_PREFIX = "Product"
-FIRST_PRODUCT = 0
-SECOND_PRODUCT = 1
 MAX_TIME_DIFF = 15
 STARTS_WITH = "T"
 
@@ -109,31 +107,31 @@ class TestSuiteTestMonitorClientProducts:
         request_body = CreateProductsRequest(products=request_object)
         response = create_product(request_body)
 
+        assert response.failed is None
+        assert response.error is None
+
         assert len(response.products) == 1
 
         assert (
-            response.products[FIRST_PRODUCT].part_number
-            == request_body.products[FIRST_PRODUCT].part_number
+            response.products[0].part_number
+            == request_body.products[0].part_number
         )
-        assert response.products[FIRST_PRODUCT].name == request_body.products[FIRST_PRODUCT].name
+        assert response.products[0].name == request_body.products[0].name
         assert (
-            response.products[FIRST_PRODUCT].family == request_body.products[FIRST_PRODUCT].family
-        )
-        assert (
-            response.products[FIRST_PRODUCT].keywords
-            == request_body.products[FIRST_PRODUCT].keywords
+            response.products[0].family == request_body.products[0].family
         )
         assert (
-            response.products[FIRST_PRODUCT].properties
-            == request_body.products[FIRST_PRODUCT].properties
+            response.products[0].keywords
+            == request_body.products[0].keywords
         )
         assert (
-            response.products[FIRST_PRODUCT].file_ids
-            == request_body.products[FIRST_PRODUCT].file_ids
+            response.products[0].properties
+            == request_body.products[0].properties
         )
-
-        assert response.failed is None
-        assert response.error is None
+        assert (
+            response.products[0].file_ids
+            == request_body.products[0].file_ids
+        )
 
     def test__create_products__partial_success(self, create_product, product_request_object):
         """Test the case of a partially successful create products API."""
@@ -150,15 +148,15 @@ class TestSuiteTestMonitorClientProducts:
     def test__get_product(self, client, create_test_products):
         """Test the case of completely successful get product API."""
         product_details = client.get_product(
-            create_test_products[FIRST_PRODUCT].id
+            create_test_products[0].id
         )
 
         assert (
             product_details.part_number
-            == create_test_products[FIRST_PRODUCT].part_number
+            == create_test_products[0].part_number
         )
         assert (
-            product_details.name == create_test_products[FIRST_PRODUCT].name
+            product_details.name == create_test_products[0].name
         )
         assert product_details.family == FAMILY
         assert product_details.keywords == TEST_KEYWORD
@@ -250,7 +248,7 @@ class TestSuiteTestMonitorClientProducts:
 
         request_body = CreateProductsRequest(products=[product_details])
         create_product_response = client.create_products(request_body)
-        id = create_product_response.products[FIRST_PRODUCT].id
+        id = create_product_response.products[0].id
 
         delete_product_response = client.delete_product(id)
 
@@ -275,7 +273,7 @@ class TestSuiteTestMonitorClientProducts:
 
             request_body = CreateProductsRequest(products=[product_details])
             response = client.create_products(request_body)
-            product_ids.append(response.products[FIRST_PRODUCT].id)
+            product_ids.append(response.products[0].id)
 
         request_body = ProductDeleteRequest(ids=product_ids)
         response = client.delete_products(request_body)
@@ -297,22 +295,22 @@ class TestSuiteTestMonitorClientProducts:
             file_ids=["UpdatedTestID"],
         )
 
-        request_body = CreateProductUpdateRequest(products=[updated_product], replace=True)
+        request_body = UpdateProductsRequest(products=[updated_product], replace=True)
         response = client.update_products(request_body)
 
-        assert response.products[FIRST_PRODUCT].name == updated_product.name
-        assert response.products[FIRST_PRODUCT].keywords == updated_product.keywords
-        assert response.products[FIRST_PRODUCT].properties == updated_product.properties
-        assert response.products[FIRST_PRODUCT].file_ids == updated_product.file_ids
+        assert response.products[0].name == updated_product.name
+        assert response.products[0].keywords == updated_product.keywords
+        assert response.products[0].properties == updated_product.properties
+        assert response.products[0].file_ids == updated_product.file_ids
 
     def test__update_products__without_replacing(self, client, create_test_products):
         """Test the case of update products API without replacing."""
         existing_product = client.get_product(
-            create_test_products[FIRST_PRODUCT].id
+            create_test_products[0].id
         )
 
         updated_product = ProductUpdateRequestObject(
-            id=create_test_products[FIRST_PRODUCT].id,
+            id=create_test_products[0].id,
             name="Updated_Product_1",
             family=FAMILY,
             keywords=["new_keyword"],
@@ -320,20 +318,20 @@ class TestSuiteTestMonitorClientProducts:
             file_ids=["new_file_id"],
         )
 
-        request_body = CreateProductUpdateRequest(products=[updated_product], replace=False)
+        request_body = UpdateProductsRequest(products=[updated_product], replace=False)
         response = client.update_products(request_body)
 
-        assert response.products[FIRST_PRODUCT].name == updated_product.name
-        assert len(response.products[FIRST_PRODUCT].keywords) == len(existing_product.keywords) + 1
+        assert response.products[0].name == updated_product.name
+        assert len(response.products[0].keywords) == len(existing_product.keywords) + 1
         assert (
-            len(response.products[FIRST_PRODUCT].properties) == len(existing_product.properties) + 1
+            len(response.products[0].properties) == len(existing_product.properties) + 1
         )
-        assert len(response.products[FIRST_PRODUCT].file_ids) == len(existing_product.file_ids) + 1
+        assert len(response.products[0].file_ids) == len(existing_product.file_ids) + 1
 
     def test__update_products__partial_success(self, client, create_test_products):
         """Test the case of a partially successful update products API."""
         valid_updated_product = ProductUpdateRequestObject(
-            id=create_test_products[FIRST_PRODUCT].id,
+            id=create_test_products[0].id,
             name="Updated_Product_1",
             family=FAMILY,
             keywords=["new_keyword_2"],
@@ -343,7 +341,7 @@ class TestSuiteTestMonitorClientProducts:
         invalid_product = ProductUpdateRequestObject(id=INVALID_ID)
 
         # Update multiple products with one of the products being invalid and check the response.
-        request_body = CreateProductUpdateRequest(
+        request_body = UpdateProductsRequest(
             products=[valid_updated_product, invalid_product],
             replace=False,
         )

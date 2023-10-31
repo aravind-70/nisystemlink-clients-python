@@ -7,7 +7,7 @@ from typing import List, Optional
 from nisystemlink.clients.core._uplink._json_model import JsonModel
 from pydantic import Field
 
-from ._test_monitor_models import (
+from ._testmonitor_models import (
     Error,
     ProductRequestObject,
     ProductResponseObject,
@@ -22,7 +22,7 @@ class CreateProductsRequest(JsonModel):
     """
 
 
-class CreateProductsResponse(JsonModel):
+class ProductsSuccessResponse(JsonModel):
     products: List[ProductResponseObject]
     """
     Array of products which are created.
@@ -51,7 +51,7 @@ class ProductsQueryResponse(JsonModel):
     continue sending requests with the newest continuation token provided by the service,
     until this value is null.
     """
-    total_count: Optional[str] = Field(None, alias="totalCount")
+    total_count: Optional[int] = Field(None, alias="totalCount")
     """
     The number of matching products, if returnCount is true.
     This value is not present if returnCount is false.
@@ -65,27 +65,12 @@ class ProductDeleteRequest(JsonModel):
     """
 
 
-class CreateProductUpdateRequest(JsonModel):
+class UpdateProductsRequest(JsonModel):
     products: List[ProductUpdateRequestObject]
     """
     Array of products to update.
     """
-    replace: str
+    replace: bool
     """
     Replace the existing fields instead of merging them.
-    """
-
-
-class ProductUpdateResponse(JsonModel):
-    products: List[ProductResponseObject]
-    """
-    Array of products which are updated.
-    """
-    failed: Optional[List[ProductRequestObject]]
-    """
-    Failed products which are to be updated.
-    """
-    error: Optional[Error]
-    """
-    Default error model.
     """
