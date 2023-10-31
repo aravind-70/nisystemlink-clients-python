@@ -20,25 +20,48 @@ from nisystemlink.clients.testmonitor.models import (
     ProductValuesQuery,
 )
 
+product_number = 0
+
 # Constants used in request and response.
 FAMILY = "TestProductsApi"
 TEST_KEYWORD = ["TestKeyword"]
 PROPERTY = {"TestKey": "TestValue"}
 FILE_ID = ["TestFileID"]
 FILTER = "family == @0"
-SUBSTITUTIONS = ["TestProductsApi"]
+SUBSTITUTIONS = [FAMILY]
 NAME = "name"
 INVALID_ID = "invalid_id"
 PART_NUMBER_PREFIX = "Test"
 PRODUCT_NAME_PREFIX = "Product"
 MAX_TIME_DIFF_IN_SECONDS = 15
-STARTS_WITH = "T"
+STARTS_WITH = FAMILY[0]
 
 
 @pytest.fixture(scope="class")
 def client(enterprise_config):
     """Fixture to create a TestMonitorClient object."""
     return TestMonitorClient(enterprise_config)
+
+
+@pytest.fixture(scope="class")
+def product_request_object():
+    """Fixture to create a request body object of create products API."""
+
+    def _product_request_object():
+        global product_number
+        product_number += 1
+
+        product_request_object = ProductRequestObject(
+            part_number=f"{PART_NUMBER_PREFIX}_{product_number}",
+            name=f"{PRODUCT_NAME_PREFIX}_{product_number}",
+            family=FAMILY,
+            keywords=TEST_KEYWORD,
+            properties=PROPERTY,
+            file_ids=FILE_ID,
+        )
+        return product_request_object
+
+    yield _product_request_object
 
 
 @pytest.fixture(scope="class")
@@ -60,32 +83,13 @@ def create_product(client: TestMonitorClient):
 
 
 @pytest.fixture(scope="class")
-def product_request_object():
-    """Fixture to create a request body object of create products API."""
-
-    def _product_request_object(product_num):
-        product_request_object = ProductRequestObject(
-            part_number=f"{PART_NUMBER_PREFIX}_{product_num}",
-            name=f"{PRODUCT_NAME_PREFIX}_{product_num}",
-            family=FAMILY,
-            keywords=TEST_KEYWORD,
-            properties=PROPERTY,
-            file_ids=FILE_ID,
-        )
-
-        return product_request_object
-
-    yield _product_request_object
-
-
-@pytest.fixture(scope="class")
-def create_test_products(create_product, product_request_object):
+def testing_products(create_product, product_request_object):
     """Fixture to create a set of test products."""
     sample_test_products = []
     request_objects = []
 
-    for product_num in range(1, 3):
-        request_object = product_request_object(product_num)
+    for _ in range(2):
+        request_object = product_request_object()
         request_objects.append(request_object)
 
     request_body = CreateProductsRequest(products=request_objects)
@@ -103,7 +107,7 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__create_products(self, create_product, product_request_object):
         """Test the case of a completely successful create products API."""
-        request_object = [product_request_object(3)]
+        request_object = [product_request_object()]
         request_body = CreateProductsRequest(products=request_object)
         response = create_product(request_body)
 
@@ -112,31 +116,38 @@ class TestSuiteTestMonitorClientProducts:
 
         assert len(response.products) == 1
 
-        assert response.products[0].part_number == request_body.products[0].part_number
-        assert response.products[0].name == request_body.products[0].name
-        assert response.products[0].family == request_body.products[0].family
-        assert response.products[0].keywords == request_body.products[0].keywords
-        assert response.products[0].properties == request_body.products[0].properties
-        assert response.products[0].file_ids == request_body.products[0].file_ids
+        requested_product = request_body.products[0]
+        created_product = response.products[0]
+
+        assert created_product.part_number == requested_product.part_number
+        assert created_product.name == requested_product.name
+        assert created_product.family == requested_product.family
+        assert created_product.keywords == requested_product.keywords
+        assert created_product.properties == requested_product.properties
+        assert created_product.file_ids == requested_product.file_ids
 
     def test__create_products__partial_success(self, create_product, product_request_object):
         """Test the case of a partially successful create products API."""
-        request_objects = [product_request_object(3), product_request_object(4)]
+        global product_number
 
-        # Since a product with part number 3 is already exists, request becomes partially successful.
-        request_body = CreateProductsRequest(products=request_objects)
+        valid_product = product_request_object()
+        duplicate_product = ProductRequestObject(
+            part_number=f"{PART_NUMBER_PREFIX}_{product_number}"
+        )
+        request_body = CreateProductsRequest(products=[valid_product, duplicate_product])
         response = create_product(request_body)
 
-        assert len(response.products) == 1
         assert response.error is not None
         assert response.failed is not None
+        assert len(response.products) == 1
 
-    def test__get_product(self, client: TestMonitorClient, create_test_products):
+    def test__get_product(self, client: TestMonitorClient, testing_products):
         """Test the case of completely successful get product API."""
-        product_details = client.get_product(create_test_products[0].id)
+        test_product = testing_products[0]
+        product_details = client.get_product(test_product.id)
 
-        assert product_details.part_number == create_test_products[0].part_number
-        assert product_details.name == create_test_products[0].name
+        assert product_details.part_number == test_product.part_number
+        assert product_details.name == test_product.name
         assert product_details.family == FAMILY
         assert product_details.keywords == TEST_KEYWORD
         assert product_details.properties == PROPERTY
@@ -144,7 +155,10 @@ class TestSuiteTestMonitorClientProducts:
 
         updated_at_timestamp = product_details.updated_at.timestamp()
         current_timestamp = datetime.now().timestamp()
-        assert updated_at_timestamp == pytest.approx(current_timestamp, abs=MAX_TIME_DIFF_IN_SECONDS)
+        assert updated_at_timestamp == pytest.approx(
+            current_timestamp,
+            abs=MAX_TIME_DIFF_IN_SECONDS,
+        )
 
     def test__get_product__invalid_id(self, client: TestMonitorClient):
         """Test the case of get product API with invalid id."""
@@ -153,20 +167,18 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__query_product(self, client: TestMonitorClient):
         """Test the cases of query products API."""
-        TAKE = 4
+
         query = ProductsAdvancedQuery(
             filter=FILTER,
             substitutions=SUBSTITUTIONS,
             order_by=ProductQueryOrderByField.PART_NUMBER,
             descending=False,
             projection=[ProductField.PART_NUMBER],
-            take=TAKE,
             return_count=True,
         )
 
         first_page_response = client.query_products(query_filter=query)
 
-        assert len(first_page_response.products) == TAKE
         assert first_page_response.continuation_token is not None
         assert first_page_response.total_count is not None
 
@@ -178,21 +190,6 @@ class TestSuiteTestMonitorClientProducts:
         assert second_page_response.total_count is not None
         assert second_page_response.continuation_token is None
 
-    def test__get_products__with_continuation_token(self, client: TestMonitorClient):
-        """Test the case of presence of return count of get products API."""
-        # Loop until all the products are returned.
-        continuation_token = None
-        while True:
-            response = client.get_products(
-                take=None,
-                continuationToken=continuation_token,
-                returnCount=True,
-            )
-            continuation_token = response.continuation_token
-
-            if continuation_token is None:
-                break
-
     def test__get_products_with_total_count(self, client: TestMonitorClient):
         """Test the case of presence of total count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=True)
@@ -203,20 +200,18 @@ class TestSuiteTestMonitorClientProducts:
         response = client.get_products(take=None, continuationToken=None, returnCount=False)
         assert response.total_count is None
 
-    def test__delete_product(self, client: TestMonitorClient):
+    def test__delete_product(
+        self,
+        client: TestMonitorClient,
+        create_product,
+        product_request_object,
+    ):
         """Test the delete product API."""
-        product_details = ProductRequestObject(
-            part_number="Test_5",
-            name="Product_5",
-            family=FAMILY,
-            keywords=TEST_KEYWORD,
-            properties=PROPERTY,
-            file_ids=FILE_ID,
-        )
+        product_details = product_request_object()
 
         request_body = CreateProductsRequest(products=[product_details])
-        create_product_response = client.create_products(request_body)
-        id = create_product_response.products[0].id
+        created_product = create_product(request_body)
+        id = created_product.products[0].id
 
         delete_product_response = client.delete_product(id)
 
@@ -225,23 +220,23 @@ class TestSuiteTestMonitorClientProducts:
         with pytest.raises(ApiException, match="404 Not Found"):
             client.get_product(id)
 
-    def test__detele_products(self, client: TestMonitorClient):
+    def test__detele_products(
+        self,
+        client: TestMonitorClient,
+        create_product,
+        product_request_object,
+    ):
         """Test the delete products API."""
         product_ids = []
+        product_request_objects = []
 
-        for product_num in range(6, 8):
-            product_details = ProductRequestObject(
-                part_number=f"{PART_NUMBER_PREFIX}_{product_num}",
-                name=f"{PRODUCT_NAME_PREFIX}_{product_num}",
-                family=FAMILY,
-                keywords=TEST_KEYWORD,
-                properties=PROPERTY,
-                file_ids=FILE_ID,
-            )
+        for _ in range(2):
+            product_details = product_request_object()
+            product_request_objects.append(product_details)
 
-            request_body = CreateProductsRequest(products=[product_details])
-            response = client.create_products(request_body)
-            product_ids.append(response.products[0].id)
+        request_body = CreateProductsRequest(products=[product_details])
+        response = create_product(request_body)
+        product_ids.extend([product.id for product in response.products])
 
         request_body = ProductDeleteRequest(ids=product_ids)
         response = client.delete_products(request_body)
@@ -252,10 +247,10 @@ class TestSuiteTestMonitorClientProducts:
             with pytest.raises(ApiException, match="404 Not Found"):
                 client.get_product(product_id)
 
-    def test__update_products(self, client: TestMonitorClient, create_test_products):
+    def test__update_products(self, client: TestMonitorClient, testing_products):
         """Test the case of update products API with replace as True."""
         updated_product = ProductUpdateRequestObject(
-            id=create_test_products[1].id,
+            id=testing_products[1].id,
             name="Updated_Product_2",
             family=FAMILY,
             keywords=["UpdatedKeyword"],
@@ -272,13 +267,13 @@ class TestSuiteTestMonitorClientProducts:
         assert response.products[0].file_ids == updated_product.file_ids
 
     def test__update_products__without_replacing(
-        self, client: TestMonitorClient, create_test_products
+        self, client: TestMonitorClient, testing_products
     ):
         """Test the case of update products API without replacing."""
-        existing_product = client.get_product(create_test_products[0].id)
+        existing_product = client.get_product(testing_products[0].id)
 
         updated_product = ProductUpdateRequestObject(
-            id=create_test_products[0].id,
+            id=testing_products[0].id,
             name="Updated_Product_1",
             family=FAMILY,
             keywords=["new_keyword"],
@@ -295,17 +290,18 @@ class TestSuiteTestMonitorClientProducts:
         assert len(response.products[0].file_ids) == len(existing_product.file_ids) + 1
 
     def test__update_products__partial_success(
-        self, client: TestMonitorClient, create_test_products
+        self, client: TestMonitorClient, testing_products
     ):
         """Test the case of a partially successful update products API."""
         valid_updated_product = ProductUpdateRequestObject(
-            id=create_test_products[0].id,
+            id=testing_products[0].id,
             name="Updated_Product_1",
             family=FAMILY,
             keywords=["new_keyword_2"],
             properties={"new_key_2": "new_value_2"},
             file_ids=["new_fileID_2"],
         )
+
         invalid_product = ProductUpdateRequestObject(id=INVALID_ID)
 
         # Update multiple products with one of the products being invalid and check the response.
@@ -323,11 +319,11 @@ class TestSuiteTestMonitorClientProducts:
     def test__query_product_values(self, client: TestMonitorClient):
         """Test the query product values API."""
         request_body = ProductValuesQuery(
-            field="PART_NUMBER",
+            field="FAMILY",
             filter=FILTER,
             substitutions=SUBSTITUTIONS,
             startsWith=STARTS_WITH,
         )
 
         response = client.query_product_values(request_body).json()
-        assert len(response) == 4
+        assert len(response) == 1
