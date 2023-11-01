@@ -314,7 +314,7 @@ class TestSuiteTestMonitorClientProducts:
         testing_products,
         update_product_request,
     ):
-        """Test the case of update products API without replacing."""
+        """Test the case of update products API without replacing"""
         existing_product = client.get_product(testing_products[1].id)
 
         new_product_details = update_product_request(
