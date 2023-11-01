@@ -267,7 +267,9 @@ class TestSuiteTestMonitorClientProducts:
         assert response.products[0].file_ids == updated_product.file_ids
 
     def test__update_products__without_replacing(
-        self, client: TestMonitorClient, testing_products
+        self,
+        client: TestMonitorClient,
+        testing_products,
     ):
         """Test the case of update products API without replacing."""
         existing_product = client.get_product(testing_products[0].id)
@@ -289,9 +291,7 @@ class TestSuiteTestMonitorClientProducts:
         assert len(response.products[0].properties) == len(existing_product.properties) + 1
         assert len(response.products[0].file_ids) == len(existing_product.file_ids) + 1
 
-    def test__update_products__partial_success(
-        self, client: TestMonitorClient, testing_products
-    ):
+    def test__update_products__partial_success(self, client: TestMonitorClient, testing_products):
         """Test the case of a partially successful update products API."""
         valid_updated_product = ProductUpdateRequestObject(
             id=testing_products[0].id,

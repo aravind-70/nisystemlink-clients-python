@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from nisystemlink.clients.core._uplink._json_model import JsonModel
 from pydantic import conint, Field
@@ -763,7 +763,7 @@ class ProductsAdvancedQuery(JsonModel):
     """
     The query filter in Dynamic Linq
     """
-    substitutions: Optional[List[Any]] = Field(None, example=['cRIO'])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=['cRIO'])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -799,7 +799,7 @@ class PathsAdvancedQuery(JsonModel):
     """
     The query filter in Dynamic Linq
     """
-    substitutions: Optional[List[Any]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -836,7 +836,7 @@ class ResultsAdvancedQuery(JsonModel):
     """
     The result query filter in Dynamic Linq
     """
-    substitutions: Optional[List[Dict[str, Any]]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -846,7 +846,7 @@ class ResultsAdvancedQuery(JsonModel):
     """
     The product query filter in Dynamic Linq
     """
-    product_substitutions: Optional[List[Dict[str, Any]]] = Field(
+    product_substitutions: Optional[List[Union[int, str]]] = Field(
         None, alias='productSubstitutions', example=['cRIO']
     )
     """
@@ -892,7 +892,7 @@ class StepsAdvancedQuery(JsonModel):
     """
     The step query filter in Dynamic Linq
     """
-    substitutions: Optional[List[Dict[str, Any]]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -904,7 +904,7 @@ class StepsAdvancedQuery(JsonModel):
     """
     The result query filter in Dynamic Linq.
     """
-    result_substitutions: Optional[List[Dict[str, Any]]] = Field(
+    result_substitutions: Optional[List[Union[int, str]]] = Field(
         None, alias='resultSubstitutions', example=['user1']
     )
     """
@@ -942,7 +942,7 @@ class ProductValuesQuery(JsonModel):
     """
     A Dynamic Linq query which specifies the products to consider when getting values.
     """
-    substitutions: Optional[List[Any]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[str, int]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -958,7 +958,7 @@ class ResultValuesQuery(JsonModel):
     """
     A Dynamic Linq query which specifies the results to consider when getting values.
     """
-    substitutions: Optional[List[Dict[str, Any]]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
@@ -974,7 +974,7 @@ class StepValuesQuery(JsonModel):
     """
     A Dynamic Linq query which specifies the steps to consider when getting values.
     """
-    substitutions: Optional[List[Dict[str, Any]]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
