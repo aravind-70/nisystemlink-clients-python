@@ -1,8 +1,8 @@
 """Implementation of TestMonitorClient."""
-# Python Module
+# Python Modules.
 from typing import Optional
 
-# Relative modules
+# Third party modules.
 from nisystemlink.clients import core
 from nisystemlink.clients.core._uplink._base_client import BaseClient
 from nisystemlink.clients.core._uplink._methods import delete, get, post

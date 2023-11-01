@@ -4,7 +4,6 @@ from datetime import datetime
 
 # Third party modules
 import pytest
-# Relative Modules
 from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient
 from nisystemlink.clients.testmonitor.models import (
@@ -19,6 +18,7 @@ from nisystemlink.clients.testmonitor.models import (
     UpdateProductsRequest,
 )
 
+# Global variable for unique product count.
 product_number = 0
 
 # Constants used in request and response.
@@ -81,7 +81,7 @@ def update_product_request():
         properties=UPDATED_PROPERTIES,
         file_ids=UPDATED_FILE_ID,
     ):
-        update_product_request = ProductUpdateRequestObject(
+        product_details = ProductUpdateRequestObject(
             id=id,
             name=name,
             family=family,
@@ -89,7 +89,8 @@ def update_product_request():
             properties=properties,
             file_ids=file_ids,
         )
-        return update_product_request
+
+        return product_details
 
     yield _update_product_request
 
@@ -219,6 +220,20 @@ class TestSuiteTestMonitorClientProducts:
         assert second_page_response.total_count is not None
         assert second_page_response.continuation_token is None
 
+    def test__get_products__continutation_token(self, client: TestMonitorClient):
+        """Test the case of continuation token to become null for get products API."""
+        continuation_token = None
+        while True:
+            response = client.get_products(
+                continuationToken=continuation_token,
+                take=None,
+                returnCount=True,
+            )
+            continuation_token = response.continuation_token
+
+            if continuation_token is None:
+                break
+
     def test__get_products_with_total_count(self, client: TestMonitorClient):
         """Test the case of presence of total count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=True)
@@ -300,7 +315,8 @@ class TestSuiteTestMonitorClientProducts:
         update_product_request,
     ):
         """Test the case of update products API without replacing."""
-        existing_product = client.get_product(testing_products[0].id)
+        existing_product = client.get_product(testing_products[1].id)
+
         new_product_details = update_product_request(
             id=testing_products[1].id,
             keywords=["second_keyword"],
@@ -323,9 +339,7 @@ class TestSuiteTestMonitorClientProducts:
         update_product_request,
     ):
         """Test the case of a partially successful update products API."""
-        valid_product_updation = update_product_request(
-            id=testing_products[0].id,
-        )
+        valid_product_updation = update_product_request(id=testing_products[0].id)
         invalid_product_updation = update_product_request(id=INVALID_ID)
 
         # Update multiple products with one of the products being invalid and check the response.

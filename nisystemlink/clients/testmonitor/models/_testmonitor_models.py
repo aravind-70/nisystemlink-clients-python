@@ -942,7 +942,7 @@ class ProductValuesQuery(JsonModel):
     """
     A Dynamic Linq query which specifies the products to consider when getting values.
     """
-    substitutions: Optional[List[Union[str, int]]] = Field(None, example=[2.5])
+    substitutions: Optional[List[Union[int, str]]] = Field(None, example=[2.5])
     """
     Makes substitutions in the query filter expression. Substitutions for the query expression are indicated by non-negative integers that are prefixed with the "at" symbol. Each substitution in the given expression will be replaced by the element at the corresponding index (zero-based) in this list. For example, "@0" in the filter expression will be replaced with the element at the zeroth index of the substitutions list.
     """
