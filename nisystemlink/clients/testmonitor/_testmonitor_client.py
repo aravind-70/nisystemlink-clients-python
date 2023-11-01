@@ -6,7 +6,7 @@ from typing import Optional
 from nisystemlink.clients import core
 from nisystemlink.clients.core._uplink._base_client import BaseClient
 from nisystemlink.clients.core._uplink._methods import delete, get, post
-from uplink import Body, Path, Query
+from uplink import Query
 
 from . import models
 
@@ -34,7 +34,8 @@ class TestMonitorClient(BaseClient):
     # products
     @post("products")
     def create_products(
-        self, products: models.CreateProductsRequest
+        self,
+        products: models.CreateProductsRequest,
     ) -> models.ProductsSuccessResponse:
         """Create a new products with the provided product details.
 
@@ -80,7 +81,8 @@ class TestMonitorClient(BaseClient):
 
     @post("query-products")
     def query_products(
-        self, query_filter: models.ProductsAdvancedQuery
+        self,
+        query_filter: models.ProductsAdvancedQuery,
     ) -> models.ProductsQueryResponse:
         """Get a set of products based on the queryFilter.
 
@@ -118,7 +120,8 @@ class TestMonitorClient(BaseClient):
 
     @post("update-products")
     def update_products(
-        self, request_body: models.UpdateProductsRequest
+        self,
+        request_body: models.UpdateProductsRequest,
     ) -> models.ProductsSuccessResponse:
         """Update a set of products.
 

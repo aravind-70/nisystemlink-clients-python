@@ -4,13 +4,11 @@ from datetime import datetime
 
 # Third party modules
 import pytest
-
 # Relative Modules
 from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient
 from nisystemlink.clients.testmonitor.models import (
     CreateProductsRequest,
-    UpdateProductsRequest,
     ProductDeleteRequest,
     ProductField,
     ProductQueryOrderByField,
@@ -18,23 +16,30 @@ from nisystemlink.clients.testmonitor.models import (
     ProductsAdvancedQuery,
     ProductUpdateRequestObject,
     ProductValuesQuery,
+    UpdateProductsRequest,
 )
 
 product_number = 0
 
 # Constants used in request and response.
+PART_NUMBER_PREFIX = "Test"
+PRODUCT_NAME_PREFIX = "Product"
 FAMILY = "TestProductsApi"
 TEST_KEYWORD = ["TestKeyword"]
 PROPERTY = {"TestKey": "TestValue"}
 FILE_ID = ["TestFileID"]
 FILTER = "family == @0"
 SUBSTITUTIONS = [FAMILY]
-NAME = "name"
-INVALID_ID = "invalid_id"
-PART_NUMBER_PREFIX = "Test"
-PRODUCT_NAME_PREFIX = "Product"
-MAX_TIME_DIFF_IN_SECONDS = 15
 STARTS_WITH = FAMILY[0]
+
+NAME = "name"
+MAX_TIME_DIFF_IN_SECONDS = 15
+INVALID_ID = "invalid_id"
+
+UPDATED_NAME = "UpdatedProduct"
+UPDATED_KEYWORD = ["UpdatedKeyword"]
+UPDATED_PROPERTIES = {"UpdatedKey": "UpdatedValue"}
+UPDATED_FILE_ID = ["UpdatedTestId"]
 
 
 @pytest.fixture(scope="class")
@@ -44,14 +49,14 @@ def client(enterprise_config):
 
 
 @pytest.fixture(scope="class")
-def product_request_object():
+def create_product_request():
     """Fixture to create a request body object of create products API."""
 
-    def _product_request_object():
+    def _create_product_request():
         global product_number
         product_number += 1
 
-        product_request_object = ProductRequestObject(
+        create_product_request = ProductRequestObject(
             part_number=f"{PART_NUMBER_PREFIX}_{product_number}",
             name=f"{PRODUCT_NAME_PREFIX}_{product_number}",
             family=FAMILY,
@@ -59,9 +64,34 @@ def product_request_object():
             properties=PROPERTY,
             file_ids=FILE_ID,
         )
-        return product_request_object
+        return create_product_request
 
-    yield _product_request_object
+    yield _create_product_request
+
+
+@pytest.fixture(scope="class")
+def update_product_request():
+    """Fixture to create a request body object of update products API."""
+
+    def _update_product_request(
+        id,
+        name=UPDATED_NAME,
+        family=FAMILY,
+        keywords=UPDATED_KEYWORD,
+        properties=UPDATED_PROPERTIES,
+        file_ids=UPDATED_FILE_ID,
+    ):
+        update_product_request = ProductUpdateRequestObject(
+            id=id,
+            name=name,
+            family=family,
+            keywords=keywords,
+            properties=properties,
+            file_ids=file_ids,
+        )
+        return update_product_request
+
+    yield _update_product_request
 
 
 @pytest.fixture(scope="class")
@@ -83,13 +113,13 @@ def create_product(client: TestMonitorClient):
 
 
 @pytest.fixture(scope="class")
-def testing_products(create_product, product_request_object):
+def testing_products(create_product, create_product_request):
     """Fixture to create a set of test products."""
     sample_test_products = []
     request_objects = []
 
     for _ in range(2):
-        request_object = product_request_object()
+        request_object = create_product_request()
         request_objects.append(request_object)
 
     request_body = CreateProductsRequest(products=request_objects)
@@ -105,9 +135,9 @@ def testing_products(create_product, product_request_object):
 class TestSuiteTestMonitorClientProducts:
     """Class contains a set of test methods to test Products API of TestMonitor."""
 
-    def test__create_products(self, create_product, product_request_object):
+    def test__create_products(self, create_product, create_product_request):
         """Test the case of a completely successful create products API."""
-        request_object = [product_request_object()]
+        request_object = [create_product_request()]
         request_body = CreateProductsRequest(products=request_object)
         response = create_product(request_body)
 
@@ -126,11 +156,11 @@ class TestSuiteTestMonitorClientProducts:
         assert created_product.properties == requested_product.properties
         assert created_product.file_ids == requested_product.file_ids
 
-    def test__create_products__partial_success(self, create_product, product_request_object):
+    def test__create_products__partial_success(self, create_product, create_product_request):
         """Test the case of a partially successful create products API."""
         global product_number
 
-        valid_product = product_request_object()
+        valid_product = create_product_request()
         duplicate_product = ProductRequestObject(
             part_number=f"{PART_NUMBER_PREFIX}_{product_number}"
         )
@@ -167,7 +197,6 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__query_product(self, client: TestMonitorClient):
         """Test the cases of query products API."""
-
         query = ProductsAdvancedQuery(
             filter=FILTER,
             substitutions=SUBSTITUTIONS,
@@ -204,10 +233,10 @@ class TestSuiteTestMonitorClientProducts:
         self,
         client: TestMonitorClient,
         create_product,
-        product_request_object,
+        create_product_request,
     ):
         """Test the delete product API."""
-        product_details = product_request_object()
+        product_details = create_product_request()
 
         request_body = CreateProductsRequest(products=[product_details])
         created_product = create_product(request_body)
@@ -224,14 +253,14 @@ class TestSuiteTestMonitorClientProducts:
         self,
         client: TestMonitorClient,
         create_product,
-        product_request_object,
+        create_product_request,
     ):
         """Test the delete products API."""
         product_ids = []
         product_request_objects = []
 
         for _ in range(2):
-            product_details = product_request_object()
+            product_details = create_product_request()
             product_request_objects.append(product_details)
 
         request_body = CreateProductsRequest(products=[product_details])
@@ -247,66 +276,61 @@ class TestSuiteTestMonitorClientProducts:
             with pytest.raises(ApiException, match="404 Not Found"):
                 client.get_product(product_id)
 
-    def test__update_products(self, client: TestMonitorClient, testing_products):
+    def test__update_products(
+        self,
+        client: TestMonitorClient,
+        testing_products,
+        update_product_request,
+    ):
         """Test the case of update products API with replace as True."""
-        updated_product = ProductUpdateRequestObject(
-            id=testing_products[1].id,
-            name="Updated_Product_2",
-            family=FAMILY,
-            keywords=["UpdatedKeyword"],
-            properties={"UpdatedKey": "UpdatedValue"},
-            file_ids=["UpdatedTestID"],
-        )
+        new_product_details = update_product_request(id=testing_products[0].id)
 
-        request_body = UpdateProductsRequest(products=[updated_product], replace=True)
+        request_body = UpdateProductsRequest(products=[new_product_details], replace=True)
         response = client.update_products(request_body)
 
-        assert response.products[0].name == updated_product.name
-        assert response.products[0].keywords == updated_product.keywords
-        assert response.products[0].properties == updated_product.properties
-        assert response.products[0].file_ids == updated_product.file_ids
+        assert response.products[0].name == new_product_details.name
+        assert response.products[0].keywords == new_product_details.keywords
+        assert response.products[0].properties == new_product_details.properties
+        assert response.products[0].file_ids == new_product_details.file_ids
 
     def test__update_products__without_replacing(
         self,
         client: TestMonitorClient,
         testing_products,
+        update_product_request,
     ):
         """Test the case of update products API without replacing."""
         existing_product = client.get_product(testing_products[0].id)
-
-        updated_product = ProductUpdateRequestObject(
-            id=testing_products[0].id,
-            name="Updated_Product_1",
-            family=FAMILY,
-            keywords=["new_keyword"],
-            properties={"new_key": "new_value"},
-            file_ids=["new_file_id"],
+        new_product_details = update_product_request(
+            id=testing_products[1].id,
+            keywords=["second_keyword"],
+            properties={"second_key": "second_value"},
+            file_ids=["second_file_id"],
         )
 
-        request_body = UpdateProductsRequest(products=[updated_product], replace=False)
+        request_body = UpdateProductsRequest(products=[new_product_details], replace=False)
         response = client.update_products(request_body)
 
-        assert response.products[0].name == updated_product.name
+        assert response.products[0].name == new_product_details.name
         assert len(response.products[0].keywords) == len(existing_product.keywords) + 1
         assert len(response.products[0].properties) == len(existing_product.properties) + 1
         assert len(response.products[0].file_ids) == len(existing_product.file_ids) + 1
 
-    def test__update_products__partial_success(self, client: TestMonitorClient, testing_products):
+    def test__update_products__partial_success(
+        self,
+        client: TestMonitorClient,
+        testing_products,
+        update_product_request,
+    ):
         """Test the case of a partially successful update products API."""
-        valid_updated_product = ProductUpdateRequestObject(
+        valid_product_updation = update_product_request(
             id=testing_products[0].id,
-            name="Updated_Product_1",
-            family=FAMILY,
-            keywords=["new_keyword_2"],
-            properties={"new_key_2": "new_value_2"},
-            file_ids=["new_fileID_2"],
         )
-
-        invalid_product = ProductUpdateRequestObject(id=INVALID_ID)
+        invalid_product_updation = update_product_request(id=INVALID_ID)
 
         # Update multiple products with one of the products being invalid and check the response.
         request_body = UpdateProductsRequest(
-            products=[valid_updated_product, invalid_product],
+            products=[valid_product_updation, invalid_product_updation],
             replace=False,
         )
 
