@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Union
 from nisystemlink.clients.core._uplink._json_model import JsonModel
 from pydantic import conint, Field
 
-
 class Error(JsonModel):
     name: Optional[str] = None
     """
