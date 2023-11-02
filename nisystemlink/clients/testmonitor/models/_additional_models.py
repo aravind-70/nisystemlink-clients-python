@@ -22,7 +22,7 @@ class CreateProductsRequest(JsonModel):
     """
 
 
-class ProductsSuccessResponse(JsonModel):
+class CreateOrEditProductsResponse(JsonModel):
     products: List[ProductResponseObject]
     """
     Array of products which are created.

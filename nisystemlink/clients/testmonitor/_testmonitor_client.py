@@ -31,12 +31,17 @@ class TestMonitorClient(BaseClient):
 
         super().__init__(configuration, "/nitestmonitor/v2/")
 
+    # versioning
+    @get("")
+    def api_info(self) -> models.V2Operations:
+        ...
+
     # products
     @post("products")
     def create_products(
         self,
         products: models.CreateProductsRequest,
-    ) -> models.ProductsSuccessResponse:
+    ) -> models.CreateOrEditProductsResponse:
         """Create a new products with the provided product details.
 
         Args:
@@ -122,7 +127,7 @@ class TestMonitorClient(BaseClient):
     def update_products(
         self,
         request_body: models.UpdateProductsRequest,
-    ) -> models.ProductsSuccessResponse:
+    ) -> models.CreateOrEditProductsResponse:
         """Update a set of products.
 
         Args:
@@ -134,7 +139,7 @@ class TestMonitorClient(BaseClient):
         ...
 
     @post("query-product-values")
-    def query_product_values(self, product_query: models.ProductValuesQuery):
+    def query_product_values(self, product_query: models.ProductValuesQuery) -> list:
         """Get product values or fields using the product_query.
 
         Args:
