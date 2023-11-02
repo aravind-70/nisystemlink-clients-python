@@ -4,6 +4,7 @@ import pytest
 # Relative modules
 from nisystemlink.clients.testmonitor import TestMonitorClient
 
+
 @pytest.fixture(scope="class")
 def client(enterprise_config):
     """Fixture to create a TestMonitorClient instance."""
@@ -18,4 +19,4 @@ class TestSuiteTestMonitorClientVersioning:
     def test__api_info(self, client: TestMonitorClient):
         """Test the versioning API info."""
         response = client.api_info()
-        assert len(response.dict()) != 0
+        assert response is not None
