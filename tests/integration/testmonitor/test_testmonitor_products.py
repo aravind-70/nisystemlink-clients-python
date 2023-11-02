@@ -39,7 +39,7 @@ INVALID_ID = "invalid_id"
 UPDATED_NAME = "UpdatedProduct"
 UPDATED_KEYWORD = ["UpdatedKeyword"]
 UPDATED_PROPERTIES = {"UpdatedKey": "UpdatedValue"}
-UPDATED_FILE_ID = ["UpdatedTestId"]
+UPDATED_FILE_ID = ["UpdatedTestFileId"]
 
 
 @pytest.fixture(scope="class")
@@ -117,15 +117,11 @@ def create_product(client: TestMonitorClient):
 def testing_products(create_product, create_product_request):
     """Fixture to create a set of test products."""
     sample_test_products = []
-    request_objects = []
 
-    for _ in range(2):
-        request_object = create_product_request()
-        request_objects.append(request_object)
-
+    request_objects = [create_product_request() for _ in range(4)]
     request_body = CreateProductsRequest(products=request_objects)
-    response = create_product(request_body)
 
+    response = create_product(request_body)
     sample_test_products.extend(response.products)
 
     return sample_test_products
@@ -136,7 +132,7 @@ def testing_products(create_product, create_product_request):
 class TestSuiteTestMonitorClientProducts:
     """Class contains a set of test methods to test Products API of TestMonitor."""
 
-    def test__create_products(self, create_product, create_product_request):
+    def test__create_products__complete_success(self, create_product, create_product_request):
         """Test the case of a completely successful create products API."""
         request_object = [create_product_request()]
         request_body = CreateProductsRequest(products=request_object)
@@ -179,10 +175,10 @@ class TestSuiteTestMonitorClientProducts:
 
         assert product_details.part_number == test_product.part_number
         assert product_details.name == test_product.name
-        assert product_details.family == FAMILY
-        assert product_details.keywords == TEST_KEYWORD
-        assert product_details.properties == PROPERTY
-        assert product_details.file_ids == FILE_ID
+        assert product_details.family == test_product.family
+        assert product_details.keywords == test_product.keywords
+        assert product_details.properties == test_product.properties
+        assert product_details.file_ids == test_product.file_ids
 
         updated_at_timestamp = product_details.updated_at.timestamp()
         current_timestamp = datetime.now().timestamp()
@@ -210,14 +206,14 @@ class TestSuiteTestMonitorClientProducts:
         first_page_response = client.query_products(query_filter=query)
 
         assert first_page_response.continuation_token is not None
-        assert first_page_response.total_count is not None
+        assert first_page_response.total_count > 0
 
         query.continuation_token = first_page_response.continuation_token
 
         second_page_response = client.query_products(query_filter=query)
 
         assert len(second_page_response.products) == 0
-        assert second_page_response.total_count is not None
+        assert second_page_response.total_count > 0
         assert second_page_response.continuation_token is None
 
     def test__get_products__continutation_token(self, client: TestMonitorClient):
@@ -234,17 +230,17 @@ class TestSuiteTestMonitorClientProducts:
             if continuation_token is None:
                 break
 
-    def test__get_products_with_total_count(self, client: TestMonitorClient):
+    def test__get_products__with_total_count(self, client: TestMonitorClient):
         """Test the case of presence of total count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=True)
-        assert response.total_count is not None
+        assert response.total_count >= 0
 
     def test__get_products__without_total_count(self, client: TestMonitorClient):
         """Test the case of no return count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=False)
         assert response.total_count is None
 
-    def test__delete_product(
+    def test__delete_product__success(
         self,
         client: TestMonitorClient,
         create_product,
@@ -264,7 +260,7 @@ class TestSuiteTestMonitorClientProducts:
         with pytest.raises(ApiException, match="404 Not Found"):
             client.get_product(id)
 
-    def test__detele_products(
+    def test__delete_products__success(
         self,
         client: TestMonitorClient,
         create_product,
@@ -272,13 +268,10 @@ class TestSuiteTestMonitorClientProducts:
     ):
         """Test the delete products API."""
         product_ids = []
-        product_request_objects = []
 
-        for _ in range(2):
-            product_details = create_product_request()
-            product_request_objects.append(product_details)
+        product_request_objects = [create_product_request() for _ in range(2)]
+        request_body = CreateProductsRequest(products=product_request_objects)
 
-        request_body = CreateProductsRequest(products=[product_details])
         response = create_product(request_body)
         product_ids.extend([product.id for product in response.products])
 
@@ -298,15 +291,16 @@ class TestSuiteTestMonitorClientProducts:
         update_product_request,
     ):
         """Test the case of update products API with replace as True."""
-        new_product_details = update_product_request(id=testing_products[0].id)
+        new_product_details = update_product_request(id=testing_products[1].id)
 
         request_body = UpdateProductsRequest(products=[new_product_details], replace=True)
         response = client.update_products(request_body)
+        updated_product = response.products[0]
 
-        assert response.products[0].name == new_product_details.name
-        assert response.products[0].keywords == new_product_details.keywords
-        assert response.products[0].properties == new_product_details.properties
-        assert response.products[0].file_ids == new_product_details.file_ids
+        assert updated_product.name == new_product_details.name
+        assert updated_product.keywords == new_product_details.keywords
+        assert updated_product.properties == new_product_details.properties
+        assert updated_product.file_ids == new_product_details.file_ids
 
     def test__update_products__without_replacing(
         self,
@@ -315,10 +309,10 @@ class TestSuiteTestMonitorClientProducts:
         update_product_request,
     ):
         """Test the case of update products API without replacing."""
-        existing_product = client.get_product(testing_products[1].id)
+        existing_product = client.get_product(testing_products[2].id)
 
         new_product_details = update_product_request(
-            id=testing_products[1].id,
+            id=testing_products[2].id,
             keywords=["second_keyword"],
             properties={"second_key": "second_value"},
             file_ids=["second_file_id"],
@@ -326,11 +320,12 @@ class TestSuiteTestMonitorClientProducts:
 
         request_body = UpdateProductsRequest(products=[new_product_details], replace=False)
         response = client.update_products(request_body)
+        updated_product = response.products[0]
 
-        assert response.products[0].name == new_product_details.name
-        assert len(response.products[0].keywords) == len(existing_product.keywords) + 1
-        assert len(response.products[0].properties) == len(existing_product.properties) + 1
-        assert len(response.products[0].file_ids) == len(existing_product.file_ids) + 1
+        assert updated_product.name == new_product_details.name
+        assert len(updated_product.keywords) == len(existing_product.keywords) + 1
+        assert len(updated_product.properties) == len(existing_product.properties) + 1
+        assert len(updated_product.file_ids) == len(existing_product.file_ids) + 1
 
     def test__update_products__partial_success(
         self,
@@ -339,7 +334,7 @@ class TestSuiteTestMonitorClientProducts:
         update_product_request,
     ):
         """Test the case of a partially successful update products API."""
-        valid_product_updation = update_product_request(id=testing_products[0].id)
+        valid_product_updation = update_product_request(id=testing_products[3].id)
         invalid_product_updation = update_product_request(id=INVALID_ID)
 
         # Update multiple products with one of the products being invalid and check the response.
