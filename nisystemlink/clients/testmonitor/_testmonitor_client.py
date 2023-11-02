@@ -34,6 +34,11 @@ class TestMonitorClient(BaseClient):
     # versioning
     @get("")
     def api_info(self) -> models.V2Operations:
+        """Get information about available API operations.
+ 
+        Returns:
+            Information about available API operations.
+        """
         ...
 
     # products
