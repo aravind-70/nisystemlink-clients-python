@@ -1,6 +1,7 @@
 """This file contains the test functions for products APIs of TestMonitor."""
 # Python Modules
 from datetime import datetime
+from typing import Callable, List
 
 # Third party modules
 import pytest
@@ -12,14 +13,13 @@ from nisystemlink.clients.testmonitor.models import (
     ProductField,
     ProductQueryOrderByField,
     ProductRequestObject,
+    ProductResponseObject,
     ProductsAdvancedQuery,
     ProductUpdateRequestObject,
     ProductValuesQuery,
+    ProductValuesQueryField,
     UpdateProductsRequest,
 )
-
-# Global variable for unique product count.
-product_number = 0
 
 # Constants used in request and response.
 PART_NUMBER_PREFIX = "Test"
@@ -49,14 +49,26 @@ def client(enterprise_config):
 
 
 @pytest.fixture(scope="class")
-def create_product_request():
+def get_product_number():
+    """Fixture to provide the product number."""
+    product_number = 0
+
+    def _get_product_number():
+        nonlocal product_number
+        product_number += 1
+        return product_number
+
+    yield _get_product_number
+
+
+@pytest.fixture(scope="class")
+def create_product_request(get_product_number: Callable):
     """Fixture to create a request body object of create products API."""
 
     def _create_product_request():
-        global product_number
-        product_number += 1
+        product_number = get_product_number()
 
-        create_product_request = ProductRequestObject(
+        product_request = ProductRequestObject(
             part_number=f"{PART_NUMBER_PREFIX}_{product_number}",
             name=f"{PRODUCT_NAME_PREFIX}_{product_number}",
             family=FAMILY,
@@ -64,7 +76,7 @@ def create_product_request():
             properties=PROPERTY,
             file_ids=FILE_ID,
         )
-        return create_product_request
+        return product_request
 
     yield _create_product_request
 
@@ -114,7 +126,7 @@ def create_product(client: TestMonitorClient):
 
 
 @pytest.fixture(scope="class")
-def testing_products(create_product, create_product_request):
+def test_products(create_product: Callable, create_product_request: Callable):
     """Fixture to create a set of test products."""
     sample_test_products = []
 
@@ -132,7 +144,11 @@ def testing_products(create_product, create_product_request):
 class TestSuiteTestMonitorClientProducts:
     """Class contains a set of test methods to test Products API of TestMonitor."""
 
-    def test__create_products__complete_success(self, create_product, create_product_request):
+    def test__create_products__complete_success(
+        self,
+        create_product: Callable,
+        create_product_request: Callable,
+    ):
         """Test the case of a completely successful create products API."""
         request_object = [create_product_request()]
         request_body = CreateProductsRequest(products=request_object)
@@ -153,11 +169,17 @@ class TestSuiteTestMonitorClientProducts:
         assert created_product.properties == requested_product.properties
         assert created_product.file_ids == requested_product.file_ids
 
-    def test__create_products__partial_success(self, create_product, create_product_request):
+    def test__create_products__partial_success(
+        self,
+        create_product: Callable,
+        create_product_request: Callable,
+        get_product_number: Callable,
+    ):
         """Test the case of a partially successful create products API."""
-        global product_number
-
         valid_product = create_product_request()
+
+        # Get the previous product number to duplicate
+        product_number = get_product_number() - 1
         duplicate_product = ProductRequestObject(
             part_number=f"{PART_NUMBER_PREFIX}_{product_number}"
         )
@@ -168,9 +190,13 @@ class TestSuiteTestMonitorClientProducts:
         assert response.failed is not None
         assert len(response.products) == 1
 
-    def test__get_product(self, client: TestMonitorClient, testing_products):
+    def test__get_product(
+        self,
+        client: TestMonitorClient,
+        test_products: List[ProductResponseObject],
+    ):
         """Test the case of completely successful get product API."""
-        test_product = testing_products[0]
+        test_product = test_products[0]
         product_details = client.get_product(test_product.id)
 
         assert product_details.part_number == test_product.part_number
@@ -219,6 +245,7 @@ class TestSuiteTestMonitorClientProducts:
     def test__get_products__continutation_token(self, client: TestMonitorClient):
         """Test the case of continuation token to become null for get products API."""
         continuation_token = None
+
         while True:
             response = client.get_products(
                 continuationToken=continuation_token,
@@ -243,8 +270,8 @@ class TestSuiteTestMonitorClientProducts:
     def test__delete_product__success(
         self,
         client: TestMonitorClient,
-        create_product,
-        create_product_request,
+        create_product: Callable,
+        create_product_request: Callable,
     ):
         """Test the delete product API."""
         product_details = create_product_request()
@@ -263,8 +290,8 @@ class TestSuiteTestMonitorClientProducts:
     def test__delete_products__success(
         self,
         client: TestMonitorClient,
-        create_product,
-        create_product_request,
+        create_product: Callable,
+        create_product_request: Callable,
     ):
         """Test the delete products API."""
         product_ids = []
@@ -287,11 +314,11 @@ class TestSuiteTestMonitorClientProducts:
     def test__update_products(
         self,
         client: TestMonitorClient,
-        testing_products,
-        update_product_request,
+        test_products: List[ProductResponseObject],
+        update_product_request: Callable,
     ):
         """Test the case of update products API with replace as True."""
-        new_product_details = update_product_request(id=testing_products[1].id)
+        new_product_details = update_product_request(id=test_products[1].id)
 
         request_body = UpdateProductsRequest(products=[new_product_details], replace=True)
         response = client.update_products(request_body)
@@ -305,14 +332,14 @@ class TestSuiteTestMonitorClientProducts:
     def test__update_products__without_replacing(
         self,
         client: TestMonitorClient,
-        testing_products,
-        update_product_request,
+        test_products: List[ProductResponseObject],
+        update_product_request: Callable,
     ):
         """Test the case of update products API without replacing."""
-        existing_product = client.get_product(testing_products[2].id)
+        existing_product = client.get_product(test_products[2].id)
 
         new_product_details = update_product_request(
-            id=testing_products[2].id,
+            id=test_products[2].id,
             keywords=["second_keyword"],
             properties={"second_key": "second_value"},
             file_ids=["second_file_id"],
@@ -330,11 +357,11 @@ class TestSuiteTestMonitorClientProducts:
     def test__update_products__partial_success(
         self,
         client: TestMonitorClient,
-        testing_products,
-        update_product_request,
+        test_products: List[ProductResponseObject],
+        update_product_request: Callable,
     ):
         """Test the case of a partially successful update products API."""
-        valid_product_updation = update_product_request(id=testing_products[3].id)
+        valid_product_updation = update_product_request(id=test_products[3].id)
         invalid_product_updation = update_product_request(id=INVALID_ID)
 
         # Update multiple products with one of the products being invalid and check the response.
@@ -352,7 +379,7 @@ class TestSuiteTestMonitorClientProducts:
     def test__query_product_values(self, client: TestMonitorClient):
         """Test the query product values API."""
         request_body = ProductValuesQuery(
-            field="FAMILY",
+            field=ProductValuesQueryField.FAMILY,
             filter=FILTER,
             substitutions=SUBSTITUTIONS,
             startsWith=STARTS_WITH,

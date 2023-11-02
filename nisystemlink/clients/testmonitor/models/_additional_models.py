@@ -1,4 +1,4 @@
-"""Contains Custom Models for Product APIs."""
+"""This file contains Custom Models for Product APIs."""
 
 # Python Modules
 from typing import List, Optional
@@ -21,7 +21,7 @@ class CreateProductsRequest(JsonModel):
     """
 
 
-class CreateOrEditProductsResponse(JsonModel):
+class CreateOrUpdateProductsResponse(JsonModel):
     products: List[ProductResponseObject]
     """
     Array of products which are created.

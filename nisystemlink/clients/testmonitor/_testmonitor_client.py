@@ -6,9 +6,8 @@ from typing import Optional
 from nisystemlink.clients import core
 from nisystemlink.clients.core._uplink._base_client import BaseClient
 from nisystemlink.clients.core._uplink._methods import delete, get, post
+from nisystemlink.clients.testmonitor import models
 from uplink import Query
-
-from . import models
 
 
 class TestMonitorClient(BaseClient):
@@ -35,7 +34,7 @@ class TestMonitorClient(BaseClient):
     @get("")
     def api_info(self) -> models.V2Operations:
         """Get information about available API operations.
- 
+
         Returns:
             Information about available API operations.
         """
@@ -46,7 +45,7 @@ class TestMonitorClient(BaseClient):
     def create_products(
         self,
         products: models.CreateProductsRequest,
-    ) -> models.CreateOrEditProductsResponse:
+    ) -> models.CreateOrUpdateProductsResponse:
         """Create a new products with the provided product details.
 
         Args:
@@ -132,7 +131,7 @@ class TestMonitorClient(BaseClient):
     def update_products(
         self,
         request_body: models.UpdateProductsRequest,
-    ) -> models.CreateOrEditProductsResponse:
+    ) -> models.CreateOrUpdateProductsResponse:
         """Update a set of products.
 
         Args:
