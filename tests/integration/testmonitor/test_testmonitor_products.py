@@ -1,4 +1,4 @@
-"""This file contains the test functions for products APIs of TestMonitor."""
+"""This file contains the test class for products APIs of TestMonitor."""
 # Python Modules
 from datetime import datetime
 from typing import Callable, List
@@ -50,7 +50,7 @@ def client(enterprise_config):
 
 @pytest.fixture(scope="class")
 def get_product_number():
-    """Fixture to provide the product number."""
+    """Fixture to update the product number."""
     product_number = 0
 
     def _get_product_number():
@@ -178,8 +178,9 @@ class TestSuiteTestMonitorClientProducts:
         """Test the case of a partially successful create products API."""
         valid_product = create_product_request()
 
-        # Get the previous product number to duplicate
+        # Get the previous product number to create a invalid product.
         product_number = get_product_number() - 1
+
         duplicate_product = ProductRequestObject(
             part_number=f"{PART_NUMBER_PREFIX}_{product_number}"
         )
@@ -231,8 +232,9 @@ class TestSuiteTestMonitorClientProducts:
 
         first_page_response = client.query_products(query_filter=query)
 
-        assert first_page_response.continuation_token is not None
+        assert len(first_page_response.products) > 0
         assert first_page_response.total_count > 0
+        assert first_page_response.continuation_token is not None
 
         query.continuation_token = first_page_response.continuation_token
 
@@ -260,7 +262,7 @@ class TestSuiteTestMonitorClientProducts:
     def test__get_products__with_total_count(self, client: TestMonitorClient):
         """Test the case of presence of total count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=True)
-        assert response.total_count >= 0
+        assert response.total_count > 0
 
     def test__get_products__without_total_count(self, client: TestMonitorClient):
         """Test the case of no return count of get products API."""
