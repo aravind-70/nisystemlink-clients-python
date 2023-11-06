@@ -1,6 +1,6 @@
 """Implementation of TestMonitorClient."""
 # Python Modules.
-from typing import Optional
+from typing import List, Optional, Union
 
 # Third party modules.
 from nisystemlink.clients import core
@@ -58,7 +58,7 @@ class TestMonitorClient(BaseClient):
         ...
 
     @get("products/{productId}")
-    def get_product(self, productId: str) -> models.ProductResponseObject:
+    def get_product(self, productId: Optional[str]) -> models.ProductResponseObject:
         """Retrieves the product details single product identified by its ID.
 
         Args:
@@ -72,8 +72,8 @@ class TestMonitorClient(BaseClient):
     @get("products", args=[Query, Query, Query])
     def get_products(
         self,
-        continuationToken: str,
-        take: int,
+        continuationToken: Optional[Union[str, None]],
+        take: Optional[Union[int, None]],
         returnCount: bool,
     ) -> models.ProductsQueryResponse:
         """Get product details of multiple products.
@@ -143,7 +143,10 @@ class TestMonitorClient(BaseClient):
         ...
 
     @post("query-product-values")
-    def query_product_values(self, product_query: models.ProductValuesQuery) -> list:
+    def query_product_values(
+        self,
+        product_query: models.ProductValuesQuery,
+    ) -> List[str]:
         """Get product values or fields using the product_query.
 
         Args:

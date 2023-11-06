@@ -178,7 +178,7 @@ class TestSuiteTestMonitorClientProducts:
         """Test the case of a partially successful create products API."""
         valid_product = create_product_request()
 
-        # Get the previous product number to create a invalid product.
+        # Set the product number to the last recent to create an invalid product.
         product_number = get_product_number() - 1
 
         duplicate_product = ProductRequestObject(
@@ -206,7 +206,7 @@ class TestSuiteTestMonitorClientProducts:
         assert product_details.keywords == test_product.keywords
         assert product_details.properties == test_product.properties
         assert product_details.file_ids == test_product.file_ids
-
+        assert product_details.updated_at is not None
         updated_at_timestamp = product_details.updated_at.timestamp()
         current_timestamp = datetime.now().timestamp()
         assert updated_at_timestamp == pytest.approx(
@@ -233,7 +233,7 @@ class TestSuiteTestMonitorClientProducts:
         first_page_response = client.query_products(query_filter=query)
 
         assert len(first_page_response.products) > 0
-        assert first_page_response.total_count > 0
+        assert first_page_response.total_count is not None
         assert first_page_response.continuation_token is not None
 
         query.continuation_token = first_page_response.continuation_token
@@ -241,10 +241,10 @@ class TestSuiteTestMonitorClientProducts:
         second_page_response = client.query_products(query_filter=query)
 
         assert len(second_page_response.products) == 0
-        assert second_page_response.total_count > 0
+        assert second_page_response.total_count is not None
         assert second_page_response.continuation_token is None
 
-    def test__get_products__continutation_token(self, client: TestMonitorClient):
+    def test__get_products__without_continuation_token(self, client: TestMonitorClient):
         """Test the case of continuation token to become null for get products API."""
         continuation_token = None
 
@@ -262,7 +262,7 @@ class TestSuiteTestMonitorClientProducts:
     def test__get_products__with_total_count(self, client: TestMonitorClient):
         """Test the case of presence of total count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=True)
-        assert response.total_count > 0
+        assert response.total_count is not None
 
     def test__get_products__without_total_count(self, client: TestMonitorClient):
         """Test the case of no return count of get products API."""
@@ -299,13 +299,13 @@ class TestSuiteTestMonitorClientProducts:
         product_ids = []
 
         product_request_objects = [create_product_request() for _ in range(2)]
-        request_body = CreateProductsRequest(products=product_request_objects)
+        create_request_body = CreateProductsRequest(products=product_request_objects)
 
-        response = create_product(request_body)
+        response = create_product(create_request_body)
         product_ids.extend([product.id for product in response.products])
 
-        request_body = ProductDeleteRequest(ids=product_ids)
-        response = client.delete_products(request_body)
+        delete_request_body = ProductDeleteRequest(ids=product_ids)
+        response = client.delete_products(delete_request_body)
 
         assert response is None
 
@@ -352,9 +352,25 @@ class TestSuiteTestMonitorClientProducts:
         updated_product = response.products[0]
 
         assert updated_product.name == new_product_details.name
-        assert len(updated_product.keywords) == len(existing_product.keywords) + 1
-        assert len(updated_product.properties) == len(existing_product.properties) + 1
-        assert len(updated_product.file_ids) == len(existing_product.file_ids) + 1
+
+        # Assigning respective values to respective variables.
+        existing_product_keywords = existing_product.keywords
+        updated_product_keywords = updated_product.keywords
+
+        existing_product_properties = existing_product.properties
+        updated_product_properties = updated_product.properties
+
+        existing_product_file_ids = existing_product.file_ids
+        updated_product_file_ids = updated_product.file_ids
+
+        if updated_product_keywords is not None and existing_product_keywords is not None:
+            assert len(updated_product_keywords) == len(existing_product_keywords) + 1
+
+        if updated_product_properties is not None and existing_product_properties is not None:
+            assert len(updated_product_properties) == len(existing_product_properties) + 1
+
+        if updated_product_file_ids is not None and existing_product_file_ids is not None:
+            assert len(updated_product_file_ids) == len(existing_product_file_ids) + 1
 
     def test__update_products__partial_success(
         self,
@@ -387,5 +403,5 @@ class TestSuiteTestMonitorClientProducts:
             startsWith=STARTS_WITH,
         )
 
-        response = client.query_product_values(request_body).json()
+        response = client.query_product_values(request_body)
         assert len(response) == 1

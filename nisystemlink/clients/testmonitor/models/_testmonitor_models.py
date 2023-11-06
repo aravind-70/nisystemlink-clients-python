@@ -8,7 +8,8 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from nisystemlink.clients.core._uplink._json_model import JsonModel
-from pydantic import conint, Field
+from pydantic import Field
+
 
 
 class Error(JsonModel):
@@ -776,7 +777,7 @@ class ProductsAdvancedQuery(JsonModel):
     """
     Specifies the product fields to project. When a field value is given here, the corresponding field will be present in all returned products, and all unspecified fields will be excluded. If no projection is specified, all product fields will be returned.
     """
-    take: Optional[conint(ge=-1)] = Field(1000, example=1000)
+    take: Optional[int] = Field(1000, example=1000, ge=-1, le=1000)
     """
     The maximum number of products to return.
     """
@@ -812,7 +813,7 @@ class PathsAdvancedQuery(JsonModel):
     """
     Specifies the path fields to project. When a field value is given here, the corresponding field will be present in all returned paths, and all unspecified fields will be excluded. If no projection is specified, all path fields will be returned.
     """
-    take: Optional[conint(ge=-1)] = Field(1000, example=1000)
+    take: Optional[int] = Field(1000, example=1000, ge=-1, le=1000)
     """
     The maximum number of paths to return.
     """
@@ -868,7 +869,7 @@ class ResultsAdvancedQuery(JsonModel):
     """
     Specifies the result fields to project. When a field value is given here, the corresponding field will be present in all returned results, and all unspecified fields will be excluded. If no projection is specified, all result fields will be returned.
     """
-    take: Optional[conint(ge=-1)] = Field(1000, example=1000)
+    take: Optional[int] = Field(1000, example=1000, ge=-1, le=1000)
     """
     The maximum number of products to return.
     """
@@ -919,7 +920,7 @@ class StepsAdvancedQuery(JsonModel):
     """
     Specifies the step fields to project. When a field value is given here, the corresponding field will be present in all returned steps, and all unspecified fields will be excluded. If no projection is specified, all step fields will be returned.
     """
-    take: Optional[conint(ge=-1)] = Field(1000, example=1000)
+    take: Optional[int] = Field(1000, example=1000, ge=-1, le=1000)
     """
     The maximum number of steps to return.
     """

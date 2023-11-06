@@ -1,10 +1,10 @@
 """This file contains Custom Models for Product APIs."""
 
 # Python Modules
-from typing import List, Optional
+from typing import List, Optional, Any, Union
 
 # Third party Modules
-from nisystemlink.clients.core._uplink._json_model import JsonModel
+from nisystemlink.clients.core._uplink._json_model import JsonModel, BaseModel
 from pydantic import Field
 from ._testmonitor_models import (
     Error,
@@ -50,7 +50,7 @@ class ProductsQueryResponse(JsonModel):
     continue sending requests with the newest continuation token provided by the service,
     until this value is null.
     """
-    total_count: Optional[int] = Field(None, alias="totalCount")
+    total_count: Union[int, None] = Field(None, alias="totalCount")
     """
     The number of matching products, if returnCount is true.
     This value is not present if returnCount is false.
