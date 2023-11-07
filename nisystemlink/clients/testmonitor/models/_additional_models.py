@@ -1,11 +1,12 @@
 """This file contains Custom Models for Product APIs."""
 
 # Python Modules
-from typing import List, Optional, Any, Union
+from typing import List, Optional, Union
 
 # Third party Modules
-from nisystemlink.clients.core._uplink._json_model import JsonModel, BaseModel
+from nisystemlink.clients.core._uplink._json_model import JsonModel
 from pydantic import Field
+
 from ._testmonitor_models import (
     Error,
     ProductRequestObject,

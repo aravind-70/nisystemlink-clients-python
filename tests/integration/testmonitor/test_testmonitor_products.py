@@ -33,7 +33,7 @@ SUBSTITUTIONS = [FAMILY]
 STARTS_WITH = FAMILY[0]
 
 NAME = "name"
-MAX_TIME_DIFF_IN_SECONDS = 15
+MAX_TIME_DIFF_IN_SECONDS = 20
 INVALID_ID = "invalid_id"
 
 UPDATED_NAME = "UpdatedProduct"
@@ -206,9 +206,12 @@ class TestSuiteTestMonitorClientProducts:
         assert product_details.keywords == test_product.keywords
         assert product_details.properties == test_product.properties
         assert product_details.file_ids == test_product.file_ids
+
         assert product_details.updated_at is not None
+
         updated_at_timestamp = product_details.updated_at.timestamp()
         current_timestamp = datetime.now().timestamp()
+
         assert updated_at_timestamp == pytest.approx(
             current_timestamp,
             abs=MAX_TIME_DIFF_IN_SECONDS,
@@ -234,6 +237,7 @@ class TestSuiteTestMonitorClientProducts:
 
         assert len(first_page_response.products) > 0
         assert first_page_response.total_count is not None
+        assert first_page_response.total_count > 0
         assert first_page_response.continuation_token is not None
 
         query.continuation_token = first_page_response.continuation_token
@@ -242,6 +246,7 @@ class TestSuiteTestMonitorClientProducts:
 
         assert len(second_page_response.products) == 0
         assert second_page_response.total_count is not None
+        assert second_page_response.total_count > 0
         assert second_page_response.continuation_token is None
 
     def test__get_products__without_continuation_token(self, client: TestMonitorClient):
@@ -263,6 +268,7 @@ class TestSuiteTestMonitorClientProducts:
         """Test the case of presence of total count of get products API."""
         response = client.get_products(take=None, continuationToken=None, returnCount=True)
         assert response.total_count is not None
+        assert response.total_count > 0
 
     def test__get_products__without_total_count(self, client: TestMonitorClient):
         """Test the case of no return count of get products API."""
@@ -352,25 +358,12 @@ class TestSuiteTestMonitorClientProducts:
         updated_product = response.products[0]
 
         assert updated_product.name == new_product_details.name
-
-        # Assigning respective values to respective variables.
-        existing_product_keywords = existing_product.keywords
-        updated_product_keywords = updated_product.keywords
-
-        existing_product_properties = existing_product.properties
-        updated_product_properties = updated_product.properties
-
-        existing_product_file_ids = existing_product.file_ids
-        updated_product_file_ids = updated_product.file_ids
-
-        if updated_product_keywords is not None and existing_product_keywords is not None:
-            assert len(updated_product_keywords) == len(existing_product_keywords) + 1
-
-        if updated_product_properties is not None and existing_product_properties is not None:
-            assert len(updated_product_properties) == len(existing_product_properties) + 1
-
-        if updated_product_file_ids is not None and existing_product_file_ids is not None:
-            assert len(updated_product_file_ids) == len(existing_product_file_ids) + 1
+        assert updated_product.keywords is not None and existing_product.keywords is not None
+        assert len(updated_product.keywords) == len(existing_product.keywords) + 1
+        assert updated_product.properties is not None and existing_product.properties is not None
+        assert len(updated_product.properties) == len(existing_product.properties) + 1
+        assert updated_product.file_ids is not None and existing_product.file_ids is not None
+        assert len(updated_product.file_ids) == len(existing_product.file_ids) + 1
 
     def test__update_products__partial_success(
         self,

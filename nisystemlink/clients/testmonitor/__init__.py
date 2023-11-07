@@ -1,3 +1,3 @@
-from ._testmonitor_client import TestMonitorClient
+# flake8: noqa W505
 
-# flake8: noqa
+from ._testmonitor_client import TestMonitorClient

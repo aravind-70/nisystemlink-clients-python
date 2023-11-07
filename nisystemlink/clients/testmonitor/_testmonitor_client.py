@@ -108,7 +108,7 @@ class TestMonitorClient(BaseClient):
         """Delete a product using the product id.
 
         Args:
-            product_id: The id of the product to be deleted.
+            productId: The id of the product to be deleted.
 
         Returns:
             None
@@ -147,7 +147,7 @@ class TestMonitorClient(BaseClient):
         self,
         product_query: models.ProductValuesQuery,
     ) -> List[str]:
-        """Get product values or fields using the product_query.
+        """Get product values using the product_query.
 
         Args:
             product_query: The fields to be queried based on filter.
