@@ -31,7 +31,9 @@ from nisystemlink.clients.dataframe.models import (
 from responses import matchers
 
 
-int_index_column = Column(name="index", data_type=DataType.Int32, column_type=ColumnType.Index)
+int_index_column = Column(
+    name="index", data_type=DataType.Int32, column_type=ColumnType.Index
+)
 
 basic_table_model = CreateTableRequest(columns=[int_index_column])
 
@@ -123,7 +125,9 @@ class TestDataFrame:
         with pytest.raises(ApiException, match="invalid table ID"):
             client.get_table_metadata("invalid_id")
 
-    def test__list_tables__returns(self, client: DataFrameClient, test_tables: List[str]):
+    def test__list_tables__returns(
+        self, client: DataFrameClient, test_tables: List[str]
+    ):
         first_page = client.list_tables(
             take=2,
             id=test_tables[:3],
@@ -145,7 +149,9 @@ class TestDataFrame:
         assert len(second_page.tables) == 1
         assert second_page.continuation_token is None
 
-    def test__query_tables__returns(self, client: DataFrameClient, test_tables: List[str]):
+    def test__query_tables__returns(
+        self, client: DataFrameClient, test_tables: List[str]
+    ):
         query = QueryTablesRequest(
             filter="""(id == @0 or id == @1 or id == @2)
                 and createdWithin <= RelativeTime.CurrentWeek
@@ -177,7 +183,9 @@ class TestDataFrame:
                 metadata_revision=2,
                 name="Modified table",
                 properties={"cow": "moo"},
-                columns=[ColumnMetadataPatch(name="index", properties={"sheep": "baa"})],
+                columns=[
+                    ColumnMetadataPatch(name="index", properties={"sheep": "baa"})
+                ],
             ),
         )
         table = client.get_table_metadata(id)
@@ -236,11 +244,15 @@ class TestDataFrame:
         assert response.failed_table_ids == ["invalid_id"]
         assert len(response.error.inner_errors) == 1
 
-    def test__modify_tables__modifies_tables(self, client: DataFrameClient, create_table):
+    def test__modify_tables__modifies_tables(
+        self, client: DataFrameClient, create_table
+    ):
         ids = [create_table(basic_table_model) for _ in range(3)]
 
         updates = [
-            TableMetadataModification(id=id, name="Modified table", properties={"duck": "quack"})
+            TableMetadataModification(
+                id=id, name="Modified table", properties={"duck": "quack"}
+            )
             for id in ids
         ]
 
@@ -250,9 +262,14 @@ class TestDataFrame:
             assert table.name == "Modified table"
             assert table.properties == {"duck": "quack"}
 
-        updates = [TableMetadataModification(id=id, properties={"pig": "oink"}) for id in ids]
+        updates = [
+            TableMetadataModification(id=id, properties={"pig": "oink"}) for id in ids
+        ]
 
-        assert client.modify_tables(ModifyTablesRequest(tables=updates, replace=True)) is None
+        assert (
+            client.modify_tables(ModifyTablesRequest(tables=updates, replace=True))
+            is None
+        )
 
         for table in client.list_tables(id=ids).tables:
             assert table.properties == {"pig": "oink"}
@@ -261,7 +278,8 @@ class TestDataFrame:
         id = client.create_table(basic_table_model)
 
         updates = [
-            TableMetadataModification(id=id, name="Modified table") for id in [id, "invalid_id"]
+            TableMetadataModification(id=id, name="Modified table")
+            for id in [id, "invalid_id"]
         ]
 
         response = client.modify_tables(ModifyTablesRequest(tables=updates))
@@ -295,7 +313,9 @@ class TestDataFrame:
             data=[["1", "3.3", "True"], ["2", None, "False"], ["3", "1.1", "True"]],
         )
 
-        client.append_table_data(id, AppendTableDataRequest(frame=frame, end_of_data=True))
+        client.append_table_data(
+            id, AppendTableDataRequest(frame=frame, end_of_data=True)
+        )
 
         # TODO: Remove mock when service supports flushing
         with responses.RequestsMock() as rsps:
@@ -312,7 +332,9 @@ class TestDataFrame:
                 },
             )
 
-            response = client.get_table_data(id, columns=["index", "value"], order_by=["value"])
+            response = client.get_table_data(
+                id, columns=["index", "value"], order_by=["value"]
+            )
 
             assert response.total_row_count == 3
             assert response.frame == DataFrame(
@@ -320,7 +342,9 @@ class TestDataFrame:
                 data=[["3", "1.1"], ["1", "3.3"], ["2", None]],
             )
 
-    def test__write_invalid_data__raises(self, client: DataFrameClient, test_tables: List[str]):
+    def test__write_invalid_data__raises(
+        self, client: DataFrameClient, test_tables: List[str]
+    ):
         id = test_tables[0]
 
         frame = DataFrame(
@@ -346,7 +370,9 @@ class TestDataFrame:
             data=[["1", "2.5", "6.5"], ["2", "1.5", "5.5"], ["3", "2.5", "7.5"]],
         )
 
-        client.append_table_data(id, AppendTableDataRequest(frame=frame, end_of_data=True))
+        client.append_table_data(
+            id, AppendTableDataRequest(frame=frame, end_of_data=True)
+        )
 
         # TODO: Remove mock when service supports flushing
         with responses.RequestsMock() as rsps:
@@ -419,7 +445,9 @@ class TestDataFrame:
             ],
         )
 
-        client.append_table_data(id, AppendTableDataRequest(frame=frame, end_of_data=True))
+        client.append_table_data(
+            id, AppendTableDataRequest(frame=frame, end_of_data=True)
+        )
 
         # TODO: Remove mock when service supports flushing
         with responses.RequestsMock() as rsps:
@@ -504,7 +532,9 @@ class TestDataFrame:
             ],
         )
 
-        client.append_table_data(id, AppendTableDataRequest(frame=frame, end_of_data=True))
+        client.append_table_data(
+            id, AppendTableDataRequest(frame=frame, end_of_data=True)
+        )
 
         # TODO: Remove mock when service supports flushing
         with responses.RequestsMock() as rsps:
@@ -560,7 +590,9 @@ class TestDataFrame:
             data=[["1", "2.5", "6.5"], ["2", "1.5", "5.5"], ["3", "2.5", "7.5"]],
         )
 
-        client.append_table_data(id, AppendTableDataRequest(frame=frame, end_of_data=True))
+        client.append_table_data(
+            id, AppendTableDataRequest(frame=frame, end_of_data=True)
+        )
 
         # TODO: Remove mock when service supports flushing
         with responses.RequestsMock() as rsps:
@@ -576,4 +608,7 @@ class TestDataFrame:
                 ExportTableDataRequest(response_format=ExportFormat.CSV),
             )
 
-            assert response.read() == b'"col1","col2","col3"\r\n1,2.5,6.5\r\n2,1.5,5.5\r\n3,2.5,7.5'
+            assert (
+                response.read()
+                == b'"col1","col2","col3"\r\n1,2.5,6.5\r\n2,1.5,5.5\r\n3,2.5,7.5'
+            )

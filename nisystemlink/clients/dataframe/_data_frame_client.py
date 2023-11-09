@@ -102,7 +102,7 @@ class DataFrameClient(BaseClient):
                 or provided an invalid argument.
         """
         ...
- 
+
     @post("query-tables")
     def query_tables(self, query: models.QueryTablesRequest) -> models.PagedTables:
         """Queries available tables on the SystemLink DataFrame service and returns their metadata.

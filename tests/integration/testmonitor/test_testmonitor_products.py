@@ -184,7 +184,9 @@ class TestSuiteTestMonitorClientProducts:
         duplicate_product = ProductRequestObject(
             part_number=f"{PART_NUMBER_PREFIX}_{product_number}"
         )
-        request_body = CreateProductsRequest(products=[valid_product, duplicate_product])
+        request_body = CreateProductsRequest(
+            products=[valid_product, duplicate_product]
+        )
         response = create_product(request_body)
 
         assert response.error is not None
@@ -266,13 +268,17 @@ class TestSuiteTestMonitorClientProducts:
 
     def test__get_products__with_total_count(self, client: TestMonitorClient):
         """Test the case of presence of total count of get products API."""
-        response = client.get_products(take=None, continuationToken=None, returnCount=True)
+        response = client.get_products(
+            take=None, continuationToken=None, returnCount=True
+        )
         assert response.total_count is not None
         assert response.total_count > 0
 
     def test__get_products__without_total_count(self, client: TestMonitorClient):
         """Test the case of no return count of get products API."""
-        response = client.get_products(take=None, continuationToken=None, returnCount=False)
+        response = client.get_products(
+            take=None, continuationToken=None, returnCount=False
+        )
         assert response.total_count is None
 
     def test__delete_product__success(
@@ -328,7 +334,9 @@ class TestSuiteTestMonitorClientProducts:
         """Test the case of update products API with replace as True."""
         new_product_details = update_product_request(id=test_products[1].id)
 
-        request_body = UpdateProductsRequest(products=[new_product_details], replace=True)
+        request_body = UpdateProductsRequest(
+            products=[new_product_details], replace=True
+        )
         response = client.update_products(request_body)
         updated_product = response.products[0]
 
@@ -353,16 +361,27 @@ class TestSuiteTestMonitorClientProducts:
             file_ids=["second_file_id"],
         )
 
-        request_body = UpdateProductsRequest(products=[new_product_details], replace=False)
+        request_body = UpdateProductsRequest(
+            products=[new_product_details], replace=False
+        )
         response = client.update_products(request_body)
         updated_product = response.products[0]
 
         assert updated_product.name == new_product_details.name
-        assert updated_product.keywords is not None and existing_product.keywords is not None
+        assert (
+            updated_product.keywords is not None
+            and existing_product.keywords is not None
+        )
         assert len(updated_product.keywords) == len(existing_product.keywords) + 1
-        assert updated_product.properties is not None and existing_product.properties is not None
+        assert (
+            updated_product.properties is not None
+            and existing_product.properties is not None
+        )
         assert len(updated_product.properties) == len(existing_product.properties) + 1
-        assert updated_product.file_ids is not None and existing_product.file_ids is not None
+        assert (
+            updated_product.file_ids is not None
+            and existing_product.file_ids is not None
+        )
         assert len(updated_product.file_ids) == len(existing_product.file_ids) + 1
 
     def test__update_products__partial_success(

@@ -59,7 +59,7 @@ class TestMonitorClient(BaseClient):
 
     @get("products/{productId}")
     def get_product(self, productId: Optional[str]) -> models.ProductResponseObject:
-        """Retrieves the product details single product identified by its ID.
+        """Retrieve the product details of a product identified by its ID.
 
         Args:
             productId: Unique ID of a product.
