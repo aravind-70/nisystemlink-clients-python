@@ -35,7 +35,7 @@ class Error(JsonModel):
     """
     Positional argument values for the error code
     """
-    inner_errors: Optional[List[Error]] = Field(None, alias='innerErrors')
+    inner_errors: Optional[List[Any]] = Field(None, alias='innerErrors')
 
 
 class Operation(JsonModel):
@@ -131,7 +131,7 @@ class NamedValueObject(JsonModel):
     """
     The name of the value
     """
-    value: Optional[Dict[str, Any]] = Field(None, example=1.3)
+    value: Optional[Any] = Field(None, example=1.3)
     """
     The value
     """
