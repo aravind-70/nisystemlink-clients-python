@@ -1,11 +1,29 @@
 """This file contains additional models for Steps APIs."""
 # Python modules
-from typing import List, Optional, Any, Union
+from typing import List, Optional
 
-# Third party modules
-from  nisystemlink.clients.core._uplink._json_model import JsonModel
 from pydantic import Field
-from ._testmonitor_models import TestStepResponseObject, TestStepRequestObject, Error
+
+from nisystemlink.clients.core._uplink._json_model import JsonModel
+
+from ._testmonitor_models import (
+    Error,
+    TestResultRequestObject,
+    TestResultResponseObject,
+    TestStepRequestObject,
+    TestStepResponseObject,
+)
+
+
+class CreateTestResultsRequest(JsonModel):
+    results: List[TestResultRequestObject]
+
+
+class PartialSuccessOrCompleteSuccess(JsonModel):
+
+    results: List[TestResultResponseObject]
+    failed: Optional[List[TestResultRequestObject]]
+    error: Optional[Error]
 
 
 class StepsQueryResponse(JsonModel):
