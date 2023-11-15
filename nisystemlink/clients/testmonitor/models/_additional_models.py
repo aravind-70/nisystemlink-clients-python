@@ -12,6 +12,7 @@ from ._testmonitor_models import (
     TestResultResponseObject,
     TestStepRequestObject,
     TestStepResponseObject,
+    StepIdResultIdPair,
 )
 
 
@@ -36,3 +37,13 @@ class CreateOrUpdateStepsResponse(JsonModel):
     steps: List[TestStepResponseObject]
     failed: Optional[List[TestStepRequestObject]]
     error: Optional[Error]
+
+
+class DeleteStepsPartialSuccess(JsonModel):
+    steps: List[StepIdResultIdPair]
+    failed: Optional[List[StepIdResultIdPair]]
+    error: Optional[Error]
+
+
+class QueryStepsValuesResponse(JsonModel):
+    __root__: List[str]

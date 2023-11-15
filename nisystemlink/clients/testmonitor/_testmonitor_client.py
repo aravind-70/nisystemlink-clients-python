@@ -31,16 +31,15 @@ class TestMonitorClient(BaseClient):
     # results
     @post("results")
     def create_results(
-        self, requestBody: Body(type=models.CreateTestResultsRequest)
+        self,
+        requestBody: models.CreateTestResultsRequest,
     ) -> models.PartialSuccessOrCompleteSuccess:
         ...
 
     # steps
     @post("query-steps")
-    def query_steps(
-        self, query_filter: models.StepsAdvancedQuery
-    ) -> models.StepsQueryResponse:
-        """Get a set of steps based on the queryFilter.
+    def query_steps(self, query_filter: models.StepsAdvancedQuery) -> models.StepsQueryResponse:
+        """Get a set of steps based on the query_filter.
 
         Args:
             query_filter: The filter to be applied when querying for steps.
@@ -72,23 +71,25 @@ class TestMonitorClient(BaseClient):
     @post("steps")
     def create_steps(
         self,
-        requestBody: models.TestStepCreateOrUpdateRequestObject,
+        request_body: models.TestStepCreateOrUpdateRequestObject,
     ) -> models.CreateOrUpdateStepsResponse:
-        """Create a new steps with the provided steps details.
+        """Create steps.
 
         Args:
-            steps: The request to create the steps.
+            request_body: Steps details.
 
         Returns:
-            The steps details of the newly created steps.
+            Created steps details.
         """
         ...
 
     @get("results/{resultId}/steps/{stepId}", args=[Path, Path])
     def get_step(
-        self, resultId: str, stepId: Union[str, int]
+        self,
+        resultId: str,
+        stepId: Union[str, int],
     ) -> models.TestStepResponseObject:
-        """Retrieves the steps details single step identified by stepId and resultId.
+        """Retrieve the details of a single step.
 
         Args:
             resultId: Unique ID of a result.
@@ -103,14 +104,14 @@ class TestMonitorClient(BaseClient):
     def delete_step(
         self,
         resultId: str,
-        stepId: Union[str, int],
+        stepId: Optional[str],
         updateResultTotalTime: bool,
     ) -> None:
-        """Delete a step with the stepId.
+        """Delete a step.
 
         Args:
-            resultId: The id of the result.
-            stepId: The id of the step be deleted.
+            resultId: Id of the result.
+            stepId: Id of the step to be deleted.
 
 
         Returns:
@@ -120,13 +121,13 @@ class TestMonitorClient(BaseClient):
 
     @post("query-step-values")
     def query_step_values(self, step_query: models.StepValuesQuery) -> List[str]:
-        """Get step values or fields using the step_query.
+        """Get step values or fields.
 
         Args:
-            step_query: The fields to be queried based on filter.
+            step_query: The fields to be queried.
 
         Returns:
-            The list of values based on the step_query.
+            The list of values.
         """
         ...
 
@@ -150,11 +151,11 @@ class TestMonitorClient(BaseClient):
         self,
         request_body: models.TestStepsDeleteRequest,
         UpdateResultTotalTime: bool,
-    ) -> None:
-        """Delete set of steps using the list of steps ids given in the request body.
+    ) -> Union[None, models.DeleteStepsPartialSuccess]:
+        """Delete set of steps.
 
         Args:
-            request_body: The list of pairs of result and step ids to be deleted.
+            request_body: List of pairs of result ids and step ids to be deleted.
 
         Returns:
             None
@@ -239,12 +240,12 @@ class TestMonitorClient(BaseClient):
     # )
 
 
-response = TestMonitorClient().query_step_values(
-    step_query=models.StepValuesQuery(
-        field=models.StepValuesQueryField.STEP_ID,
-        filter="stepId == @0",
-        substitutions=["Step1"],
-        startsWith="Ste",
-    )
-)
-# print(response)
+# response = TestMonitorClient().query_step_values(
+#     step_query=models.StepValuesQuery(
+#         field=models.StepValuesQueryField.STEP_ID,
+#         filter="stepId == @0",
+#         substitutions=["Step1"],
+#         startsWith="Ste",
+#     )
+# )
+# # print(response)
