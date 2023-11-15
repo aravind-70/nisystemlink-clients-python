@@ -1,5 +1,6 @@
 """This file contains the test class for steps APIs of TestMonitor."""
 import pytest
+from datetime import datetime, timezone
 
 from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient
@@ -14,6 +15,8 @@ from nisystemlink.clients.testmonitor.models import (
     TestStepRequestObject,
     TestStepsDeleteRequest,
     StepIdResultIdPair,
+    StepsAdvancedQuery,
+    StepField,
 )
 from nisystemlink.clients.auth import AuthClient
 
@@ -22,6 +25,7 @@ if api_info.workspaces:
     workspace_id = api_info.workspaces[0].id
 
 INVALID_ID = "invalid_id"
+TOTAL_TIME_IN_SECONDS = 7
 
 
 @pytest.fixture(scope="class")
@@ -62,13 +66,32 @@ def get_result_id(client: TestMonitorClient):
 @pytest.fixture(scope="class")
 def create_steps_request_body(client: TestMonitorClient, get_result_id, get_step_id):
     def _create_steps_request_body():
+        step_num = str(get_step_id())
         request_body = TestStepCreateOrUpdateRequestObject(
             steps=[
                 TestStepRequestObject(
-                    step_id=str(get_step_id()),
+                    step_id=step_num,
                     parent_id="root",
                     result_id=get_result_id,
-                    total_time_in_seconds=10
+                    data=StepDataObject(
+                        text="Outputs",
+                        parameters=[
+                            {
+                                "name": "voltage",
+                                "status": "Passed",
+                                "lowLimit": "1.1",
+                                "highLimit": "2.2",
+                                "unit": "volt",
+                            }
+                        ],
+                    ),
+                    data_model="TestModel",
+                    name=f"TestStep_{step_num}",
+                    started_at=datetime.now(),
+                    step_type="Test",
+                    total_time_in_seconds=TOTAL_TIME_IN_SECONDS,
+                    inputs=[NamedValueObject(name="voltage", value=1.5)],
+                    outputs=[NamedValueObject(name="current", value=2.5)],
                 )
             ],
             updateResultTotalTime=True,
@@ -117,12 +140,10 @@ class TestSuiteTestMonitorClientSteps:
             steps=[
                 TestStepRequestObject(
                     step_id=str(step_id),
-                    parent_id="root",
                     result_id=get_result_id,
                 ),
                 TestStepRequestObject(  # Duplicate product
                     step_id=str(step_id),
-                    parent_id="root",
                     result_id=get_result_id,
                 ),
             ]
@@ -141,7 +162,6 @@ class TestSuiteTestMonitorClientSteps:
     def test__get_step(self, client: TestMonitorClient, get_result_id, test_steps):
         result_id = get_result_id
         test_step = test_steps[0]
-
         step_details = client.get_step(resultId=result_id, stepId=test_step.step_id)
 
         assert step_details.step_id == test_step.step_id
@@ -236,11 +256,77 @@ class TestSuiteTestMonitorClientSteps:
         assert response.failed is not None
         assert response.error is not None
 
-    # def test__update_steps__complete_success(self, client: TestMonitorClient):
+    def test__update_steps__complete_success(
+        self, client: TestMonitorClient, test_steps, get_result_id
+    ):
+        test_step = test_steps[1]
+        started_at = datetime.now(timezone.utc)
 
-    # def test__update_steps__partial_success(self, client: TestMonitorClient):
+        request_body = TestStepCreateOrUpdateRequestObject(
+            steps=[
+                TestStepRequestObject(
+                    step_id=test_step.step_id,
+                    result_id=get_result_id,
+                    started_at=started_at,
+                    total_time_in_seconds=TOTAL_TIME_IN_SECONDS + 1,
+                )
+            ],
+            update_result_total_time=True,
+        )
 
-    # def test__query_steps()
+        response = client.update_steps(request_body=request_body)
 
+        assert response.failed is None
+        assert response.error is None
+        assert response.steps is not None
+
+        updated_step = response.steps[0]
+        assert updated_step.started_at == started_at
+        assert updated_step.total_time_in_seconds == TOTAL_TIME_IN_SECONDS + 1
+
+    def test__update_steps__partial_success(
+        self, client: TestMonitorClient, test_steps, get_result_id
+    ):
+        test_step = test_steps[2]
+        started_at = datetime.now(timezone.utc)
+
+        request_body = TestStepCreateOrUpdateRequestObject(
+            steps=[
+                TestStepRequestObject(
+                    step_id=test_step.step_id,
+                    result_id=get_result_id,
+                    started_at=started_at,
+                    total_time_in_seconds=TOTAL_TIME_IN_SECONDS + 1,
+                ),
+                TestStepRequestObject(step_id=INVALID_ID, result_id=INVALID_ID),
+            ],
+            update_result_total_time=True,
+        )
+
+        response = client.update_steps(request_body=request_body)
+        assert response.steps is not None
+        assert len(response.steps) == 1
+
+        updated_step = response.steps[0]
+        assert updated_step.started_at == started_at
+        assert updated_step.total_time_in_seconds == TOTAL_TIME_IN_SECONDS + 1
+
+        assert response.failed is not None
+        assert len(response.failed) == 1
+        assert response.error is not None
+
+    def test__query_steps(self, client: TestMonitorClient, get_result_id, test_steps):
+        query_filter = StepsAdvancedQuery(
+            filter="stepId > @0",
+            substitutions=[test_steps[3].step_id],
+            result_filter="resultId == @0",
+            result_substitutions=[get_result_id],
+            projection=[StepField.NAME],
+            return_count=True
+        )
+        response = client.query_steps(query_filter=query_filter)
+        assert response.steps is not None
+        assert len(response.steps) == 1
+        assert response.total_count is not None
 
     # def test__query_step_values(self, client: TestMonitorClient):
