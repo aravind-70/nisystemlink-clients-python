@@ -83,9 +83,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"path": path2, "type": "DOUBLE"},
         ]
         token = uuid.uuid4()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = HttpTagSelection.open(self._client, paths)
 
@@ -102,9 +100,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         assert tbase.DataType.BOOLEAN == uut.metadata[path1].data_type
         assert uut.metadata[path1].collect_aggregates is True
         assert keywords == sorted(uut.metadata[path1].keywords)
-        assert sorted(public_properties.items()) == sorted(
-            uut.metadata[path1].properties.items()
-        )
+        assert sorted(public_properties.items()) == sorted(uut.metadata[path1].properties.items())
         assert dummy_tag.retention_count == uut.metadata[path1].retention_count
         assert dummy_tag.retention_days == uut.metadata[path1].retention_days
         assert dummy_tag.retention_type == uut.metadata[path1].retention_type
@@ -144,9 +140,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"path": path2, "type": "DOUBLE"},
         ]
         token = uuid.uuid4()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = await HttpTagSelection.open_async(self._client, paths)
 
@@ -163,9 +157,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         assert tbase.DataType.BOOLEAN == uut.metadata[path1].data_type
         assert uut.metadata[path1].collect_aggregates is True
         assert keywords == sorted(uut.metadata[path1].keywords)
-        assert sorted(public_properties.items()) == sorted(
-            uut.metadata[path1].properties.items()
-        )
+        assert sorted(public_properties.items()) == sorted(uut.metadata[path1].properties.items())
         assert dummy_tag.retention_count == uut.metadata[path1].retention_count
         assert dummy_tag.retention_days == uut.metadata[path1].retention_days
         assert dummy_tag.retention_type == uut.metadata[path1].retention_type
@@ -225,9 +217,7 @@ class TestHttpTagSelection(HttpClientTestBase):
     async def test__close__selection_deleted(self):
         paths = ["path"]
         token = uuid.uuid4()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, [])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, []))
 
         uut = await HttpTagSelection.open_async(self._client, paths)
         uut.close()
@@ -249,9 +239,7 @@ class TestHttpTagSelection(HttpClientTestBase):
     async def test__close_async__selection_deleted(self):
         paths = ["path"]
         token = uuid.uuid4()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, [])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, []))
 
         uut = await HttpTagSelection.open_async(self._client, paths)
         await uut.close_async()
@@ -294,9 +282,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         self._client.all_requests.configure_mock(
             side_effect=self._get_mock_request(token, {"subscriptionUpdates": []})
         )
-        uut = HttpTagSelection(
-            self._client, [tbase.TagData(path1), tbase.TagData(path2)]
-        )
+        uut = HttpTagSelection(self._client, [tbase.TagData(path1), tbase.TagData(path2)])
 
         with uut.create_subscription():
             pass
@@ -324,9 +310,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         self._client.all_requests.configure_mock(
             side_effect=self._get_mock_request(token, {"subscriptionUpdates": []})
         )
-        uut = HttpTagSelection(
-            self._client, [tbase.TagData(path1), tbase.TagData(path2)]
-        )
+        uut = HttpTagSelection(self._client, [tbase.TagData(path1), tbase.TagData(path2)])
 
         async with await uut.create_subscription_async():
             pass
@@ -356,9 +340,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             side_effect=self._get_mock_request(token, AssertionError())
         )
 
-        uut = HttpTagSelection(
-            self._client, [tbase.TagData(path1), tbase.TagData(path2)]
-        )
+        uut = HttpTagSelection(self._client, [tbase.TagData(path1), tbase.TagData(path2)])
         uut.delete_tags_from_server()
 
         assert self._client.all_requests.call_args_list == [
@@ -381,9 +363,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"type": "DATE_TIME", "path": path1},
             {"type": "INT", "path": path2},
         ]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = HttpTagSelection.open(self._client, [path1, path2])
         uut.delete_tags_from_server()
@@ -406,9 +386,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         path2 = "tag2"
         token = uuid.uuid4()
         tags = [{"type": "DATE_TIME", "path": path1}]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = HttpTagSelection.open(self._client, [path1])
         uut.open_tags([path2])
@@ -473,18 +451,14 @@ class TestHttpTagSelection(HttpClientTestBase):
                 data={"searchPaths": AnyOrderList([path])},
             ),
             mock.call("GET", "/nitag/v2/selections/{id}/tags", params={"id": token1}),
-            mock.call(
-                "DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token1}
-            ),
+            mock.call("DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token1}),
             mock.call(
                 "POST",
                 "/nitag/v2/selections",
                 params=None,
                 data={"searchPaths": AnyOrderList([path])},
             ),
-            mock.call(
-                "DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token2}
-            ),
+            mock.call("DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token2}),
         ]
 
     @pytest.mark.asyncio
@@ -498,9 +472,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             side_effect=self._get_mock_request(token, AssertionError())
         )
 
-        uut = HttpTagSelection(
-            self._client, [tbase.TagData(path1), tbase.TagData(path2)]
-        )
+        uut = HttpTagSelection(self._client, [tbase.TagData(path1), tbase.TagData(path2)])
         await uut.delete_tags_from_server_async()
 
         assert self._client.all_requests.call_args_list == [
@@ -524,9 +496,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"type": "DATE_TIME", "path": path1},
             {"type": "INT", "path": path2},
         ]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = await HttpTagSelection.open_async(self._client, [path1, path2])
         await uut.delete_tags_from_server_async()
@@ -550,9 +520,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         path2 = "tag2"
         token = uuid.uuid4()
         tags = [{"type": "DATE_TIME", "path": path1}]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = await HttpTagSelection.open_async(self._client, [path1])
         uut.open_tags([path2])
@@ -618,31 +586,23 @@ class TestHttpTagSelection(HttpClientTestBase):
                 data={"searchPaths": AnyOrderList([path])},
             ),
             mock.call("GET", "/nitag/v2/selections/{id}/tags", params={"id": token1}),
-            mock.call(
-                "DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token1}
-            ),
+            mock.call("DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token1}),
             mock.call(
                 "POST",
                 "/nitag/v2/selections",
                 params=None,
                 data={"searchPaths": AnyOrderList([path])},
             ),
-            mock.call(
-                "DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token2}
-            ),
+            mock.call("DELETE", "/nitag/v2/selections/{id}/tags", params={"id": token2}),
         ]
 
     def test__no_selection_created_by_constructor__refresh_metadata__tags_queried(self):
         path1 = "tag1"
         path2 = "tag2"
         token = uuid.uuid4()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, [])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, []))
 
-        uut = HttpTagSelection(
-            self._client, [tbase.TagData(path1), tbase.TagData(path2)]
-        )
+        uut = HttpTagSelection(self._client, [tbase.TagData(path1), tbase.TagData(path2)])
         uut.refresh_metadata()
 
         assert self._client.all_requests.call_args_list == [
@@ -663,9 +623,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"type": "DATE_TIME", "path": path1},
             {"type": "INT", "path": path2},
         ]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = HttpTagSelection.open(self._client, [path1, path2])
         uut.refresh_metadata()
@@ -688,9 +646,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         path2 = "tag2"
         token = uuid.uuid4()
         tags = [{"type": "DATE_TIME", "path": path1}]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = HttpTagSelection.open(self._client, [path1])
         uut.open_tags([path2])
@@ -769,13 +725,9 @@ class TestHttpTagSelection(HttpClientTestBase):
         path1 = "tag1"
         path2 = "tag2"
         token = uuid.uuid4()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, [])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, []))
 
-        uut = HttpTagSelection(
-            self._client, [tbase.TagData(path1), tbase.TagData(path2)]
-        )
+        uut = HttpTagSelection(self._client, [tbase.TagData(path1), tbase.TagData(path2)])
         await uut.refresh_metadata_async()
 
         assert self._client.all_requests.call_args_list == [
@@ -799,9 +751,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"type": "DATE_TIME", "path": path1},
             {"type": "INT", "path": path2},
         ]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = await HttpTagSelection.open_async(self._client, [path1, path2])
         await uut.refresh_metadata_async()
@@ -825,9 +775,7 @@ class TestHttpTagSelection(HttpClientTestBase):
         path2 = "tag2"
         token = uuid.uuid4()
         tags = [{"type": "DATE_TIME", "path": path1}]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = await HttpTagSelection.open_async(self._client, [path1])
         uut.open_tags([path2])
@@ -1147,9 +1095,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"type": "DATE_TIME", "path": path1},
             {"type": "INT", "path": path2},
         ]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = HttpTagSelection.open(self._client, paths)
         uut.reset_aggregates()
@@ -1180,9 +1126,7 @@ class TestHttpTagSelection(HttpClientTestBase):
             {"type": "DATE_TIME", "path": path1},
             {"type": "INT", "path": path2},
         ]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, tags)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, tags))
 
         uut = await HttpTagSelection.open_async(self._client, paths)
         await uut.reset_aggregates_async()

@@ -19,9 +19,7 @@ class SerializedTagWithAggregates:
     """
 
     def __init_subclass__(cls) -> None:
-        raise TypeError(
-            "type 'SerializedTagWithAggregates' is not an acceptable base type"
-        )
+        raise TypeError("type 'SerializedTagWithAggregates' is not an acceptable base type")
 
     def __init__(
         self,

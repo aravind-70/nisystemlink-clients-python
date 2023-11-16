@@ -9,9 +9,7 @@ from typing import Generic, Optional, TypeVar, Union
 from nisystemlink.clients import core, tag as tbase
 
 
-_NUMERIC_TYPES = set(
-    (tbase.DataType.DOUBLE, tbase.DataType.INT32, tbase.DataType.UINT64)
-)
+_NUMERIC_TYPES = set((tbase.DataType.DOUBLE, tbase.DataType.INT32, tbase.DataType.UINT64))
 
 _Any = TypeVar("_Any")
 
@@ -61,11 +59,7 @@ class TagWithAggregates(Generic[_Any]):
                 # TODO: Error information: only valid if count is set
                 raise core.ApiException()
         else:
-            if (
-                min is not None
-                or max is not None
-                or (mean is not None and not math.isnan(mean))
-            ):
+            if min is not None or max is not None or (mean is not None and not math.isnan(mean)):
                 # TODO: Error information: not supported for non-numerics
                 raise core.ApiException()
 

@@ -290,8 +290,6 @@ def _handle_response(response: HttpResponse, method: str, uri: str) -> Any:
         else:
             err_obj = None
 
-        raise core.ApiException(
-            msg, error=err_obj, http_status_code=response.status_code
-        )
+        raise core.ApiException(msg, error=err_obj, http_status_code=response.status_code)
 
     return data

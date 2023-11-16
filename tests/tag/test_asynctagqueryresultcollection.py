@@ -15,12 +15,8 @@ class TestAsyncTagQueryResultCollection:
             self._next_throw = None
             self._calls = []
 
-        def setup(
-            self, *, next_page=None, new_total_count=None, exception_to_throw=None
-        ):
-            assert (
-                not self._setup_called
-            ), "setup called without previous call to _query_page_async"
+        def setup(self, *, next_page=None, new_total_count=None, exception_to_throw=None):
+            assert not self._setup_called, "setup called without previous call to _query_page_async"
             self._setup_called = True
             self._next_page = next_page
             self._next_total_count = new_total_count
@@ -89,9 +85,7 @@ class TestAsyncTagQueryResultCollection:
         tag2 = TagData("tag2", DataType.DATE_TIME)
         tag3 = TagData("tag3", DataType.DOUBLE)
 
-        uut = self.MockAsyncTagQueryResultCollection(
-            [tag1] * page1, total_count, initial_skip
-        )
+        uut = self.MockAsyncTagQueryResultCollection([tag1] * page1, total_count, initial_skip)
         uut.setup(next_page=[tag2] * page2)
 
         await uut.move_next_page_async()

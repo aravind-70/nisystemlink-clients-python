@@ -69,14 +69,10 @@ class _ITagWriterOverloads(abc.ABC):
         pass
 
     @typing.overload
-    def get_tag_writer(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueWriter[Any]":
+    def get_tag_writer(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueWriter[Any]":
         pass
 
-    def get_tag_writer(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueWriter":
+    def get_tag_writer(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueWriter":
         """Get a :class:`TagValueWriter` for this path.
 
         Args:
@@ -86,9 +82,7 @@ class _ITagWriterOverloads(abc.ABC):
         return self._get_tag_writer(path, data_type)
 
     @abc.abstractmethod
-    def _get_tag_writer(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueWriter":
+    def _get_tag_writer(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueWriter":
         """Get a :class:`TagValueWriter` for this path.
 
         Args:
@@ -129,9 +123,7 @@ class ITagWriter(_ITagWriterOverloads):
         self._validate_type(value, data_type)
 
         if data_type == tbase.DataType.DATE_TIME:
-            value = TimestampUtilities.datetime_to_str(
-                typing.cast(datetime.datetime, value)
-            )
+            value = TimestampUtilities.datetime_to_str(typing.cast(datetime.datetime, value))
 
         self._write(path, data_type, str(value), timestamp)
 
@@ -166,9 +158,7 @@ class ITagWriter(_ITagWriterOverloads):
         self._validate_type(value, data_type)
 
         if data_type == tbase.DataType.DATE_TIME:
-            value = TimestampUtilities.datetime_to_str(
-                typing.cast(datetime.datetime, value)
-            )
+            value = TimestampUtilities.datetime_to_str(typing.cast(datetime.datetime, value))
 
         return self._write_async(path, data_type, str(value), timestamp)
 
@@ -199,15 +189,11 @@ class ITagWriter(_ITagWriterOverloads):
         if data_type == tbase.DataType.INT32:
             assert isinstance(value, int)
             if not -(2**31) <= value < 2**31:
-                raise ValueError(
-                    "value {} is not the valid range of an INT32".format(value)
-                )
+                raise ValueError("value {} is not the valid range of an INT32".format(value))
         elif data_type == tbase.DataType.UINT64:
             assert isinstance(value, int)
             if not 0 <= value < 2**64:
-                raise ValueError(
-                    "value {} is not the valid range of a UINT64".format(value)
-                )
+                raise ValueError("value {} is not the valid range of a UINT64".format(value))
 
     @abc.abstractmethod
     def _write(
@@ -264,9 +250,7 @@ class ITagWriter(_ITagWriterOverloads):
         """
         ...
 
-    def _get_tag_writer(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueWriter":
+    def _get_tag_writer(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueWriter":
         """Get a :class:`TagValueWriter` for this path.
 
         Args:

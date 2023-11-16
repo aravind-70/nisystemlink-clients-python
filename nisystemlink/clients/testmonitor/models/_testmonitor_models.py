@@ -74,9 +74,7 @@ class V1Operations(JsonModel):
 
 class Operations1(JsonModel):
     get_results: Optional[Operation] = Field(None, alias="getResults")
-    get_results_property_keys: Optional[Operation] = Field(
-        None, alias="getResultsPropertyKeys"
-    )
+    get_results_property_keys: Optional[Operation] = Field(None, alias="getResultsPropertyKeys")
     query_results: Optional[Operation] = Field(None, alias="queryResults")
     create_results: Optional[Operation] = Field(None, alias="createResults")
     update_results: Optional[Operation] = Field(None, alias="updateResults")
@@ -448,15 +446,11 @@ class TestResultRequestObject(JsonModel):
     """
     ISO-8601 formatted timestamp indicating when the test result began
     """
-    total_time_in_seconds: Optional[float] = Field(
-        0.0, alias="totalTimeInSeconds", example=29.9
-    )
+    total_time_in_seconds: Optional[float] = Field(0.0, alias="totalTimeInSeconds", example=29.9)
     """
     Total run-time of the test in seconds
     """
-    workspace: Optional[str] = Field(
-        None, example="f94b178e-288c-4101-afb1-833992413aa7"
-    )
+    workspace: Optional[str] = Field(None, example="f94b178e-288c-4101-afb1-833992413aa7")
     """
     The workspace the test result belongs to
     """
@@ -476,9 +470,7 @@ class TestResultResponseObject(JsonModel):
     """
     ISO-8601 formatted timestamp indicating when the result was last updated
     """
-    program_name: Optional[str] = Field(
-        None, alias="programName", example="My test program"
-    )
+    program_name: Optional[str] = Field(None, alias="programName", example="My test program")
     """
     Program name
     """
@@ -486,9 +478,7 @@ class TestResultResponseObject(JsonModel):
     """
     Id of the test result
     """
-    system_id: Optional[str] = Field(
-        None, alias="systemId", example="5e30931993cac8046850a996"
-    )
+    system_id: Optional[str] = Field(None, alias="systemId", example="5e30931993cac8046850a996")
     """
     Id of the system
     """
@@ -508,9 +498,7 @@ class TestResultResponseObject(JsonModel):
     """
     Sequential number of the device under test
     """
-    total_time_in_seconds: Optional[float] = Field(
-        None, alias="totalTimeInSeconds", example=29.9
-    )
+    total_time_in_seconds: Optional[float] = Field(None, alias="totalTimeInSeconds", example=29.9)
     """
     Total run-time of the test in seconds
     """
@@ -536,9 +524,7 @@ class TestResultResponseObject(JsonModel):
     """
     Status type summary
     """
-    workspace: Optional[str] = Field(
-        None, example="f94b178e-288c-4101-afb1-833992413aa7"
-    )
+    workspace: Optional[str] = Field(None, example="f94b178e-288c-4101-afb1-833992413aa7")
     """
     The workspace the test result belongs to
     """
@@ -549,9 +535,7 @@ class TestResultUpdateFailureObject(JsonModel):
     """
     Test result id to update
     """
-    program_name: Optional[str] = Field(
-        None, alias="programName", example="My Program Name"
-    )
+    program_name: Optional[str] = Field(None, alias="programName", example="My Program Name")
     """
     Program name
     """
@@ -602,15 +586,11 @@ class TestResultUpdateFailureObject(JsonModel):
     """
     ISO-8601 formatted timestamp indicating when the test result began
     """
-    total_time_in_seconds: Optional[float] = Field(
-        0.0, alias="totalTimeInSeconds", example=29.9
-    )
+    total_time_in_seconds: Optional[float] = Field(0.0, alias="totalTimeInSeconds", example=29.9)
     """
     Total run-time of the test in seconds
     """
-    workspace: Optional[str] = Field(
-        None, example="f94b178e-288c-4101-afb1-833992413aa7"
-    )
+    workspace: Optional[str] = Field(None, example="f94b178e-288c-4101-afb1-833992413aa7")
     """
     The workspace the test result belongs to
     """
@@ -621,9 +601,7 @@ class TestResultUpdateRequestObject(JsonModel):
     """
     Test result id to update
     """
-    program_name: Optional[str] = Field(
-        None, alias="programName", example="My Program Name"
-    )
+    program_name: Optional[str] = Field(None, alias="programName", example="My Program Name")
     """
     Program name
     """
@@ -674,15 +652,11 @@ class TestResultUpdateRequestObject(JsonModel):
     """
     ISO-8601 formatted timestamp indicating when the test result began
     """
-    total_time_in_seconds: Optional[float] = Field(
-        0.0, alias="totalTimeInSeconds", example=29.9
-    )
+    total_time_in_seconds: Optional[float] = Field(0.0, alias="totalTimeInSeconds", example=29.9)
     """
     Total run-time of the test in seconds
     """
-    workspace: Optional[str] = Field(
-        None, example="f94b178e-288c-4101-afb1-833992413aa7"
-    )
+    workspace: Optional[str] = Field(None, example="f94b178e-288c-4101-afb1-833992413aa7")
     """
     The workspace the test result belongs to
     """
@@ -697,9 +671,7 @@ class UpdateTestResultsRequest(JsonModel):
     """
     Replace the existing fields instead of merging them
     """
-    determine_status_from_steps: Optional[bool] = Field(
-        False, alias="determineStatusFromSteps"
-    )
+    determine_status_from_steps: Optional[bool] = Field(False, alias="determineStatusFromSteps")
     """
     Determine test result status from the test step statuses
     """
@@ -726,9 +698,7 @@ class PathResponseObject(JsonModel):
     """
     Identifies the steps that this path is representative of.
     """
-    program_name: Optional[str] = Field(
-        None, alias="programName", example="MyProgram.seq"
-    )
+    program_name: Optional[str] = Field(None, alias="programName", example="MyProgram.seq")
     """
     The program name for which this path is defined.
     """
@@ -750,18 +720,14 @@ class PathResponseObject(JsonModel):
     """
     The set of outputs that steps which correspond to this path may log.
     """
-    measurements: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, example={"myMeasurement": {}}
-    )
+    measurements: Optional[Dict[str, Dict[str, Any]]] = Field(None, example={"myMeasurement": {}})
     """
     The set of measurements that steps which correspond to this path may take.
     """
 
 
 class ProductsAdvancedQuery(JsonModel):
-    filter: Optional[str] = Field(
-        None, example='(name != "cRIO-9030") && (family == @0)'
-    )
+    filter: Optional[str] = Field(None, example='(name != "cRIO-9030") && (family == @0)')
     """
     The query filter in Dynamic Linq
     """
@@ -782,9 +748,7 @@ class ProductsAdvancedQuery(JsonModel):
     """
     The maximum number of products to return.
     """
-    continuation_token: Optional[str] = Field(
-        None, alias="continuationToken", example="token"
-    )
+    continuation_token: Optional[str] = Field(None, alias="continuationToken", example="token")
     """
     A token which allows the user to resume a query at the next item in the matching product set. When querying for products, a token will be returned if a query may be continued. To obtain the next page of products, pass the token to the service on a subsequent request.
     """
@@ -818,9 +782,7 @@ class PathsAdvancedQuery(JsonModel):
     """
     The maximum number of paths to return.
     """
-    continuation_token: Optional[str] = Field(
-        None, alias="continuationToken", example="token"
-    )
+    continuation_token: Optional[str] = Field(None, alias="continuationToken", example="token")
     """
     A token which allows the user to resume a query at the next item in the matching path set. When querying for paths, a token will be returned if a query may be continued. To obtain the next page of paths, pass the token to the service on a subsequent request.
     """
@@ -874,9 +836,7 @@ class ResultsAdvancedQuery(JsonModel):
     """
     The maximum number of products to return.
     """
-    continuation_token: Optional[str] = Field(
-        None, alias="continuationToken", example="token"
-    )
+    continuation_token: Optional[str] = Field(None, alias="continuationToken", example="token")
     """
     A token which allows the user to resume a query at the next item in the matching product set. When querying for products, a token will be returned if a query may be continued. To obtain the next page of products, pass the token to the service on a subsequent request.
     """
@@ -925,9 +885,7 @@ class StepsAdvancedQuery(JsonModel):
     """
     The maximum number of steps to return.
     """
-    continuation_token: Optional[str] = Field(
-        None, alias="continuationToken", example="token"
-    )
+    continuation_token: Optional[str] = Field(None, alias="continuationToken", example="token")
     """
     A token which allows the user to resume a query at the next item in the matching step set. When querying for steps, a token will be returned if a query may be continued. To obtain the next page of steps, pass the token to the service on a subsequent request.
     """
@@ -987,12 +945,8 @@ class StepValuesQuery(JsonModel):
 
 
 class StepIdResultIdPair(JsonModel):
-    step_id: str = Field(
-        ..., alias="stepId", example="bd9126f5-b0b1-446a-8b08-dc6460047377"
-    )
-    result_id: str = Field(
-        ..., alias="resultId", example="02600cf8-c2bb-4ff9-a139-031e943fb0c0"
-    )
+    step_id: str = Field(..., alias="stepId", example="bd9126f5-b0b1-446a-8b08-dc6460047377")
+    result_id: str = Field(..., alias="resultId", example="02600cf8-c2bb-4ff9-a139-031e943fb0c0")
 
 
 class StepDataObject(JsonModel):
@@ -1067,9 +1021,7 @@ class TestStepRequestObject(JsonModel):
     """
     Step type
     """
-    total_time_in_seconds: Optional[float] = Field(
-        0.0, alias="totalTimeInSeconds", example=29.9
-    )
+    total_time_in_seconds: Optional[float] = Field(0.0, alias="totalTimeInSeconds", example=29.9)
     """
     Total number of seconds the step took to execute
     """
@@ -1088,9 +1040,7 @@ class TestStepCreateOrUpdateRequestObject(JsonModel):
     """
     Array of test steps to create
     """
-    update_result_total_time: Optional[bool] = Field(
-        False, alias="updateResultTotalTime"
-    )
+    update_result_total_time: Optional[bool] = Field(False, alias="updateResultTotalTime")
     """
     Determine test result total time from the test step total times.
     """
@@ -1123,16 +1073,12 @@ class TestStepResponseObject(JsonModel):
     """
     Step path
     """
-    path_ids: Optional[List[str]] = Field(
-        None, alias="pathIds", example=["root", "Step1"]
-    )
+    path_ids: Optional[List[str]] = Field(None, alias="pathIds", example=["root", "Step1"])
     """
     Ids of the steps in the path
     """
     status: Optional[StatusObject] = None
-    total_time_in_seconds: Optional[float] = Field(
-        None, alias="totalTimeInSeconds", example=0.0
-    )
+    total_time_in_seconds: Optional[float] = Field(None, alias="totalTimeInSeconds", example=0.0)
     """
     Total number of seconds the step took to execute
     """
@@ -1165,9 +1111,7 @@ class TestStepResponseObject(JsonModel):
     """
     Whether this step object has any children step objects. When false, this means that this step object is a leaf node.
     """
-    workspace: Optional[str] = Field(
-        None, example="f94b178e-288c-4101-afb1-833992413aa7"
-    )
+    workspace: Optional[str] = Field(None, example="f94b178e-288c-4101-afb1-833992413aa7")
     """
     The workspace the test step belongs to
     """

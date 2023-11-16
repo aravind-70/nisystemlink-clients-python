@@ -19,18 +19,14 @@ class TestTagManager(HttpClientTestBase):
         def get_client_mock(*args, **kwargs):
             return self._client
 
-        with mock.patch(
-            "nisystemlink.clients.tag._tag_manager.HttpClient", get_client_mock
-        ):
+        with mock.patch("nisystemlink.clients.tag._tag_manager.HttpClient", get_client_mock):
             self._uut = tbase.TagManager(object())
 
     def test__metadata_supplied__create_selection__metadata_used_without_query(self):
         tags = [
             tbase.TagData("tag1"),
             tbase.TagData("tag2", tbase.DataType.BOOLEAN),
-            tbase.TagData(
-                "tag3", tbase.DataType.DATE_TIME, ["keyword1"], {"prop1": "value1"}
-            ),
+            tbase.TagData("tag3", tbase.DataType.DATE_TIME, ["keyword1"], {"prop1": "value1"}),
         ]
 
         selection = self._uut.create_selection(tags)
@@ -206,9 +202,7 @@ class TestTagManager(HttpClientTestBase):
         path = "tag"
         err = core.ApiError(name="Tag.NoSuchTag")
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [core.ApiException("404 tag not found", err), None]
-            )
+            side_effect=self._get_mock_request([core.ApiException("404 tag not found", err), None])
         )
 
         tag = self._uut.open(path, tbase.DataType.UINT64)
@@ -235,9 +229,7 @@ class TestTagManager(HttpClientTestBase):
         path = "tag"
         err = core.ApiError(name="Tag.NoSuchTag")
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [core.ApiException("404 tag not found", err), None]
-            )
+            side_effect=self._get_mock_request([core.ApiException("404 tag not found", err), None])
         )
 
         tag = self._uut.open(path, tbase.DataType.UINT64, create=True)
@@ -417,9 +409,7 @@ class TestTagManager(HttpClientTestBase):
         path = "tag"
         err = core.ApiError(name="Tag.NoSuchTag")
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [core.ApiException("404 tag not found", err), None]
-            )
+            side_effect=self._get_mock_request([core.ApiException("404 tag not found", err), None])
         )
 
         tag = await self._uut.open_async(path, tbase.DataType.UINT64)
@@ -447,9 +437,7 @@ class TestTagManager(HttpClientTestBase):
         path = "tag"
         err = core.ApiError(name="Tag.NoSuchTag")
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [core.ApiException("404 tag not found", err), None]
-            )
+            side_effect=self._get_mock_request([core.ApiException("404 tag not found", err), None])
         )
 
         tag = await self._uut.open_async(path, tbase.DataType.UINT64, create=True)
@@ -586,9 +574,7 @@ class TestTagManager(HttpClientTestBase):
             )
         )
         tag1 = tbase.TagData(path1)
-        tag2 = tbase.TagData(
-            path2, tbase.DataType.UINT64, ["dummy"], {"dummy": "dummy"}
-        )
+        tag2 = tbase.TagData(path2, tbase.DataType.UINT64, ["dummy"], {"dummy": "dummy"})
         tag2.set_retention_count(9)
 
         self._uut.refresh([tag1, tag2])
@@ -685,9 +671,7 @@ class TestTagManager(HttpClientTestBase):
         )
 
         tag1 = tbase.TagData(path1)
-        tag2 = tbase.TagData(
-            path2, tbase.DataType.UINT64, ["dummy"], {"dummy": "dummy"}
-        )
+        tag2 = tbase.TagData(path2, tbase.DataType.UINT64, ["dummy"], {"dummy": "dummy"})
         tag2.set_retention_count(9)
         await self._uut.refresh_async([tag1, tag2])
 
@@ -856,9 +840,7 @@ class TestTagManager(HttpClientTestBase):
             )
         )
 
-        result = self._uut.query(
-            ["missing1", path1, "missing2", path2, "missing3"], skip=2, take=1
-        )
+        result = self._uut.query(["missing1", path1, "missing2", path2, "missing3"], skip=2, take=1)
         assert total_count == result.total_count
         paths = ",".join(("missing1", path1, "missing2", path2, "missing3"))
         self._client.all_requests.assert_called_once_with(
@@ -890,9 +872,7 @@ class TestTagManager(HttpClientTestBase):
     def test__paths_with_keywords_and_properties_supplied__query__performs_query(self):
         total_count = 0
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [{"totalCount": total_count, "tags": []}]
-            )
+            side_effect=self._get_mock_request([{"totalCount": total_count, "tags": []}])
         )
 
         result = self._uut.query(
@@ -916,9 +896,7 @@ class TestTagManager(HttpClientTestBase):
     def test__only_keywords_and_properties_supplied__query__performs_query(self):
         total_count = 0
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [{"totalCount": total_count, "tags": []}]
-            )
+            side_effect=self._get_mock_request([{"totalCount": total_count, "tags": []}])
         )
 
         result = self._uut.query(
@@ -1182,9 +1160,7 @@ class TestTagManager(HttpClientTestBase):
     ):
         total_count = 0
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [{"totalCount": total_count, "tags": []}]
-            )
+            side_effect=self._get_mock_request([{"totalCount": total_count, "tags": []}])
         )
 
         result = await self._uut.query_async(
@@ -1211,9 +1187,7 @@ class TestTagManager(HttpClientTestBase):
     ):
         total_count = 0
         self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(
-                [{"totalCount": total_count, "tags": []}]
-            )
+            side_effect=self._get_mock_request([{"totalCount": total_count, "tags": []}])
         )
 
         result = await self._uut.query_async(
@@ -1334,9 +1308,7 @@ class TestTagManager(HttpClientTestBase):
     def test__update_with_tags__metadata_sent_to_server(self):
         path1 = "tag1"
         path2 = "tag2"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None]))
         keywords = ["keyword1", "keyword2"]
         properties = {"prop1": "value1", "prop2": "value2"}
         tag1 = tbase.TagData(path1, tbase.DataType.BOOLEAN, keywords, properties)
@@ -1483,9 +1455,7 @@ class TestTagManager(HttpClientTestBase):
     def test__update_with_tag_update__metadata_merge_sent_to_server(self):
         path1 = "tag1"
         path2 = "tag2"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None]))
         keywords = ["keyword1", "keyword2"]
         properties = {"prop1": "value1", "prop2": "value2"}
         tag1 = tbase.TagData(path1, tbase.DataType.BOOLEAN, keywords, properties)
@@ -1497,9 +1467,7 @@ class TestTagManager(HttpClientTestBase):
 
         self._uut.update(
             [
-                tbase.TagDataUpdate.from_tagdata(
-                    tag1, tbase.TagUpdateFields.PROPERTIES
-                ),
+                tbase.TagDataUpdate.from_tagdata(tag1, tbase.TagUpdateFields.PROPERTIES),
                 tbase.TagDataUpdate.from_tagdata(tag2, tbase.TagUpdateFields.ALL),
             ]
         )
@@ -1590,29 +1558,19 @@ class TestTagManager(HttpClientTestBase):
         with pytest.raises(ValueError):
             await self._uut.update_async([valid_tag, None])
         with pytest.raises(ValueError):
-            await self._uut.update_async(
-                [valid_tag, tbase.TagData(None, tbase.DataType.BOOLEAN)]
-            )
+            await self._uut.update_async([valid_tag, tbase.TagData(None, tbase.DataType.BOOLEAN)])
         with pytest.raises(ValueError):
-            await self._uut.update_async(
-                [valid_tag, tbase.TagData("", tbase.DataType.BOOLEAN)]
-            )
+            await self._uut.update_async([valid_tag, tbase.TagData("", tbase.DataType.BOOLEAN)])
         with pytest.raises(ValueError):
-            await self._uut.update_async(
-                [valid_tag, tbase.TagData(" ", tbase.DataType.BOOLEAN)]
-            )
+            await self._uut.update_async([valid_tag, tbase.TagData(" ", tbase.DataType.BOOLEAN)])
         with pytest.raises(ValueError):
-            await self._uut.update_async(
-                [valid_tag, tbase.TagData("tag2", tbase.DataType.UNKNOWN)]
-            )
+            await self._uut.update_async([valid_tag, tbase.TagData("tag2", tbase.DataType.UNKNOWN)])
 
     @pytest.mark.asyncio
     async def test__update_async_with_tags__metadata_sent_to_server(self):
         path1 = "tag1"
         path2 = "tag2"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None]))
         keywords = ["keyword1", "keyword2"]
         properties = {"prop1": "value1", "prop2": "value2"}
         tag1 = tbase.TagData(path1, tbase.DataType.BOOLEAN, keywords, properties)
@@ -1762,9 +1720,7 @@ class TestTagManager(HttpClientTestBase):
     async def test__update_async_with_tag_update__metadata_merge_sent_to_server(self):
         path1 = "tag1"
         path2 = "tag2"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None]))
         keywords = ["keyword1", "keyword2"]
         properties = {"prop1": "value1", "prop2": "value2"}
         tag1 = tbase.TagData(path1, tbase.DataType.BOOLEAN, keywords, properties)
@@ -1776,9 +1732,7 @@ class TestTagManager(HttpClientTestBase):
 
         await self._uut.update_async(
             [
-                tbase.TagDataUpdate.from_tagdata(
-                    tag1, tbase.TagUpdateFields.PROPERTIES
-                ),
+                tbase.TagDataUpdate.from_tagdata(tag1, tbase.TagUpdateFields.PROPERTIES),
                 tbase.TagDataUpdate.from_tagdata(tag2, tbase.TagUpdateFields.ALL),
             ]
         )
@@ -1877,12 +1831,8 @@ class TestTagManager(HttpClientTestBase):
     def test__delete_tags__deletes_using_paths(self):
         path1 = "tag1"
         path2 = "tag2"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None, None])
-        )
-        self._uut.delete(
-            [tbase.TagData(path1, tbase.DataType.STRING), tbase.TagData(path2)]
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None, None]))
+        self._uut.delete([tbase.TagData(path1, tbase.DataType.STRING), tbase.TagData(path2)])
 
         assert self._client.all_requests.call_args_list == [
             mock.call("DELETE", "/nitag/v2/tags/{path}", params={"path": path1}),
@@ -1912,9 +1862,7 @@ class TestTagManager(HttpClientTestBase):
         path1 = "tag1"
         path2 = "tag2"
         path3 = "tag3"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None] * 6)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None] * 6))
 
         self._uut.delete([path1])
         self._uut.delete([path1, path2])
@@ -2106,9 +2054,7 @@ class TestTagManager(HttpClientTestBase):
     async def test__delete_tags_async__deletes_using_paths(self):
         path1 = "tag1"
         path2 = "tag2"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None, None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None, None]))
         await self._uut.delete_async(
             [tbase.TagData(path1, tbase.DataType.STRING), tbase.TagData(path2)]
         )
@@ -2144,9 +2090,7 @@ class TestTagManager(HttpClientTestBase):
         path1 = "tag1"
         path2 = "tag2"
         path3 = "tag3"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None] * 6)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None] * 6))
 
         await asyncio.gather(
             self._uut.delete_async([path1]),
@@ -2343,9 +2287,7 @@ class TestTagManager(HttpClientTestBase):
         value2 = 2
         writer = self._uut.create_writer(buffer_size=2)
         timestamp = datetime.now()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None]))
 
         writer.write(path, tbase.DataType.INT32, value1, timestamp=timestamp)
         writer.write(path, tbase.DataType.INT32, value2, timestamp=timestamp)
@@ -2377,9 +2319,7 @@ class TestTagManager(HttpClientTestBase):
         value = 1
         writer = self._uut.create_writer(max_buffer_time=timedelta(milliseconds=50))
         timestamp = datetime.now()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None]))
 
         writer.write(path, tbase.DataType.INT32, value, timestamp=timestamp)
         self._client.all_requests.assert_not_called()
@@ -2411,16 +2351,10 @@ class TestTagManager(HttpClientTestBase):
         value1 = 1
         value2 = 2
         value3 = 3
-        writer1 = self._uut.create_writer(
-            buffer_size=2, max_buffer_time=timedelta(minutes=1)
-        )
-        writer2 = self._uut.create_writer(
-            buffer_size=2, max_buffer_time=timedelta(milliseconds=50)
-        )
+        writer1 = self._uut.create_writer(buffer_size=2, max_buffer_time=timedelta(minutes=1))
+        writer2 = self._uut.create_writer(buffer_size=2, max_buffer_time=timedelta(milliseconds=50))
         timestamp = datetime.now()
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None, None])
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None, None]))
 
         writer1.write(path, tbase.DataType.INT32, value1, timestamp=timestamp)
         writer1.write(path, tbase.DataType.INT32, value2, timestamp=timestamp)
@@ -2609,33 +2543,17 @@ class TestTagManager(HttpClientTestBase):
 
     def test__no_tag_value__read__returns_None(self):
         path = "test"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None] * 4)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None] * 4))
 
-        assert (
-            self._uut.read(path, include_timestamp=True, include_aggregates=True)
-            is None
-        )
-        assert (
-            self._uut.read(path, include_timestamp=False, include_aggregates=True)
-            is None
-        )
-        assert (
-            self._uut.read(path, include_timestamp=True, include_aggregates=False)
-            is None
-        )
-        assert (
-            self._uut.read(path, include_timestamp=False, include_aggregates=False)
-            is None
-        )
+        assert self._uut.read(path, include_timestamp=True, include_aggregates=True) is None
+        assert self._uut.read(path, include_timestamp=False, include_aggregates=True) is None
+        assert self._uut.read(path, include_timestamp=True, include_aggregates=False) is None
+        assert self._uut.read(path, include_timestamp=False, include_aggregates=False) is None
 
         assert self._client.all_requests.call_args_list == [
             mock.call("GET", "/nitag/v2/tags/{path}/values", params={"path": path}),
             mock.call("GET", "/nitag/v2/tags/{path}/values", params={"path": path}),
-            mock.call(
-                "GET", "/nitag/v2/tags/{path}/values/current", params={"path": path}
-            ),
+            mock.call("GET", "/nitag/v2/tags/{path}/values/current", params={"path": path}),
             mock.call(
                 "GET",
                 "/nitag/v2/tags/{path}/values/current/value",
@@ -2646,21 +2564,13 @@ class TestTagManager(HttpClientTestBase):
     @pytest.mark.asyncio
     async def test__bad_arguments__read_async__raises(self):
         with pytest.raises(ValueError):
-            await self._uut.read_async(
-                None, include_timestamp=True, include_aggregates=True
-            )
+            await self._uut.read_async(None, include_timestamp=True, include_aggregates=True)
         with pytest.raises(ValueError):
-            await self._uut.read_async(
-                "", include_timestamp=True, include_aggregates=True
-            )
+            await self._uut.read_async("", include_timestamp=True, include_aggregates=True)
         with pytest.raises(ValueError):
-            await self._uut.read_async(
-                " ", include_timestamp=True, include_aggregates=True
-            )
+            await self._uut.read_async(" ", include_timestamp=True, include_aggregates=True)
         with pytest.raises(ValueError):
-            await self._uut.read_async(
-                "*", include_timestamp=True, include_aggregates=True
-            )
+            await self._uut.read_async("*", include_timestamp=True, include_aggregates=True)
 
     @pytest.mark.asyncio
     async def test__read_async_with_timestamp_and_aggregates__retrieves_all_data_from_server(
@@ -2684,9 +2594,7 @@ class TestTagManager(HttpClientTestBase):
             )
         )
 
-        result = await self._uut.read_async(
-            path, include_timestamp=True, include_aggregates=True
-        )
+        result = await self._uut.read_async(path, include_timestamp=True, include_aggregates=True)
 
         self._client.all_requests.assert_called_once_with(
             "GET", "/nitag/v2/tags/{path}/values", params={"path": path}
@@ -2721,9 +2629,7 @@ class TestTagManager(HttpClientTestBase):
             )
         )
 
-        result = await self._uut.read_async(
-            path, include_timestamp=False, include_aggregates=True
-        )
+        result = await self._uut.read_async(path, include_timestamp=False, include_aggregates=True)
 
         self._client.all_requests.assert_called_once_with(
             "GET", "/nitag/v2/tags/{path}/values", params={"path": path}
@@ -2757,9 +2663,7 @@ class TestTagManager(HttpClientTestBase):
             )
         )
 
-        result = await self._uut.read_async(
-            path, include_timestamp=True, include_aggregates=False
-        )
+        result = await self._uut.read_async(path, include_timestamp=True, include_aggregates=False)
 
         self._client.all_requests.assert_called_once_with(
             "GET", "/nitag/v2/tags/{path}/values/current", params={"path": path}
@@ -2786,9 +2690,7 @@ class TestTagManager(HttpClientTestBase):
             )
         )
 
-        result = await self._uut.read_async(
-            path, include_timestamp=False, include_aggregates=False
-        )
+        result = await self._uut.read_async(path, include_timestamp=False, include_aggregates=False)
 
         self._client.all_requests.assert_called_once_with(
             "GET", "/nitag/v2/tags/{path}/values/current/value", params={"path": path}
@@ -2806,41 +2708,29 @@ class TestTagManager(HttpClientTestBase):
     @pytest.mark.asyncio
     async def test__no_tag_value__read_async__returns_None(self):
         path = "test"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([None] * 4)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([None] * 4))
 
         assert (
-            await self._uut.read_async(
-                path, include_timestamp=True, include_aggregates=True
-            )
+            await self._uut.read_async(path, include_timestamp=True, include_aggregates=True)
             is None
         )
         assert (
-            await self._uut.read_async(
-                path, include_timestamp=False, include_aggregates=True
-            )
+            await self._uut.read_async(path, include_timestamp=False, include_aggregates=True)
             is None
         )
         assert (
-            await self._uut.read_async(
-                path, include_timestamp=True, include_aggregates=False
-            )
+            await self._uut.read_async(path, include_timestamp=True, include_aggregates=False)
             is None
         )
         assert (
-            await self._uut.read_async(
-                path, include_timestamp=False, include_aggregates=False
-            )
+            await self._uut.read_async(path, include_timestamp=False, include_aggregates=False)
             is None
         )
 
         assert self._client.all_requests.call_args_list == [
             mock.call("GET", "/nitag/v2/tags/{path}/values", params={"path": path}),
             mock.call("GET", "/nitag/v2/tags/{path}/values", params={"path": path}),
-            mock.call(
-                "GET", "/nitag/v2/tags/{path}/values/current", params={"path": path}
-            ),
+            mock.call("GET", "/nitag/v2/tags/{path}/values/current", params={"path": path}),
             mock.call(
                 "GET",
                 "/nitag/v2/tags/{path}/values/current/value",

@@ -150,9 +150,7 @@ class HttpConfigurationManager:
         return configurations
 
     @classmethod
-    def _read_configuration_file(
-        cls, path: pathlib.Path
-    ) -> Optional[HttpConfigurationFile]:
+    def _read_configuration_file(cls, path: pathlib.Path) -> Optional[HttpConfigurationFile]:
         """Parse a single SystemLink HTTP configuration file.
 
         Args:

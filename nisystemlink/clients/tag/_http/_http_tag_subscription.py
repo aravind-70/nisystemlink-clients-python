@@ -108,9 +108,7 @@ class HttpTagSubscription(tbase.TagSubscription):
             self._update_timer = update_timer
         else:
             self._update_timer = ManualResetTimer(
-                datetime.timedelta(
-                    milliseconds=self._DEFAULT_POLLING_INTERVAL_MILLISECONDS
-                )
+                datetime.timedelta(milliseconds=self._DEFAULT_POLLING_INTERVAL_MILLISECONDS)
             )
             # _exit_stack is instantiated in the base class
             self._exit_stack.enter_context(self._update_timer)
@@ -157,9 +155,7 @@ class HttpTagSubscription(tbase.TagSubscription):
             pass
 
     def _create_subscription_on_server(self, paths: List[str]) -> None:
-        response, http_response = self._api.post(
-            "", data={"updatesOnly": True, "tags": paths}
-        )
+        response, http_response = self._api.post("", data={"updatesOnly": True, "tags": paths})
 
         if response is None or response.get("subscriptionId") is None:
             raise tbase.TagManager.invalid_response(http_response)
@@ -203,9 +199,7 @@ class HttpTagSubscription(tbase.TagSubscription):
                 return
 
             try:
-                response, _ = self._api.get(
-                    "/{id}/values/current", params={"id": token}
-                )
+                response, _ = self._api.get("/{id}/values/current", params={"id": token})
             except core.ApiException:
                 return
 

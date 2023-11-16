@@ -41,9 +41,7 @@ class TestITagWriter:
             path = "MyPath.{}".format(data_type.name)
             tag_writer = writer.get_tag_writer(path, data_type)
             tag_writer.write(value)
-            writer.mock_write.assert_called_with(
-                path, data_type, serialized_value, None
-            )
+            writer.mock_write.assert_called_with(path, data_type, serialized_value, None)
 
     @pytest.mark.asyncio
     async def test__get_tag_writer__write_async_sends_path_and_data_type(self):
@@ -53,9 +51,7 @@ class TestITagWriter:
             path = "MyPath.{}".format(data_type.name)
             tag_writer = writer.get_tag_writer(path, data_type)
             await tag_writer.write_async(value)
-            writer.mock_write.assert_called_with(
-                path, data_type, serialized_value, None
-            )
+            writer.mock_write.assert_called_with(path, data_type, serialized_value, None)
 
     @pytest.mark.slow
     def test__get_tag_writer__mypy_ensures_correct_type(self):
@@ -85,9 +81,7 @@ class TestITagWriter:
                     files.append(f.name)
                     f.write(code[data_type.name])
             stdout, stderr, exit_code = mypy.api.run(files)
-            assert 0 == exit_code, "\n\n".join(
-                (stdout, stderr, str(code).replace("\\n", "\n"))
-            )
+            assert 0 == exit_code, "\n\n".join((stdout, stderr, str(code).replace("\\n", "\n")))
         finally:
             for fname in files:
                 os.remove(fname)

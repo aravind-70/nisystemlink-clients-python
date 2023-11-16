@@ -58,9 +58,7 @@ def delete(path: str, args: Optional[Sequence[Any]] = None) -> Callable[[F], F]:
     return decorator
 
 
-def response_handler(
-    handler: Any, requires_consumer: Optional[bool] = False
-) -> Callable[[F], F]:
+def response_handler(handler: Any, requires_consumer: Optional[bool] = False) -> Callable[[F], F]:
     """Annotation for creating custom response handlers."""
 
     def decorator(func: F) -> F:

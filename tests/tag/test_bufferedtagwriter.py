@@ -14,9 +14,7 @@ from .mock_manualresettimer import MockManualResetTimer
 
 class TestBufferedTagWriter:
     serialized_timestamp = "2018-11-15T03:47:36.000000+0000"
-    timestamp = datetime.datetime.strptime(
-        serialized_timestamp, "%Y-%m-%dT%H:%M:%S.%f%z"
-    )
+    timestamp = datetime.datetime.strptime(serialized_timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")
 
     def test__invalid_path__write__raises(self):
         writer = self.MockBufferedTagWriter(None, 1)
@@ -96,9 +94,7 @@ class TestBufferedTagWriter:
         item = object()
         writer.mock_create_item.configure_mock(side_effect=None, return_value=item)
         writer.mock_buffer_value.configure_mock(side_effect=None)
-        timestamp_property = PropertyMock(
-            return_value=datetime.datetime.now(datetime.timezone.utc)
-        )
+        timestamp_property = PropertyMock(return_value=datetime.datetime.now(datetime.timezone.utc))
         type(writer.time_stamper).timestamp = timestamp_property
 
         writer.write("tag", tbase.DataType.BOOLEAN, False, timestamp=None)
@@ -178,9 +174,7 @@ class TestBufferedTagWriter:
         writer.mock_send_writes.assert_called_once_with(buffer)
         assert writer.mock_buffer_value.call_args_list == [
             mock.call("tag1", item1),
-            mock.call(
-                "tag2", item2
-            ),  # tag2 should have been buffered despite the error
+            mock.call("tag2", item2),  # tag2 should have been buffered despite the error
             mock.call("tag3", item3),
         ]
 
@@ -201,9 +195,7 @@ class TestBufferedTagWriter:
         writer = self.MockBufferedTagWriter(None, 1)
 
         with pytest.raises(ValueError) as excinfo:
-            await writer.write_async(
-                None, tbase.DataType.BOOLEAN, False, timestamp=None
-            )
+            await writer.write_async(None, tbase.DataType.BOOLEAN, False, timestamp=None)
         assert "path " in str(excinfo.value)
 
         with pytest.raises(ValueError) as excinfo:
@@ -218,9 +210,7 @@ class TestBufferedTagWriter:
     async def test__invalid_data_type__write_async__raises(self):
         writer = self.MockBufferedTagWriter(None, 1)
         with pytest.raises(ValueError) as excinfo:
-            await writer.write_async(
-                "tag", tbase.DataType.UNKNOWN, "test", timestamp=None
-            )
+            await writer.write_async("tag", tbase.DataType.UNKNOWN, "test", timestamp=None)
         assert "type " in str(excinfo.value)
 
     @pytest.mark.asyncio
@@ -230,9 +220,7 @@ class TestBufferedTagWriter:
         writer.mock_create_item.configure_mock(side_effect=None, return_value=item)
         writer.mock_buffer_value.configure_mock(side_effect=None)
 
-        await writer.write_async(
-            "tag", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp
-        )
+        await writer.write_async("tag", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp)
         writer.mock_create_item.assert_called_once_with(
             "tag", tbase.DataType.BOOLEAN, "False", self.timestamp
         )
@@ -288,9 +276,7 @@ class TestBufferedTagWriter:
         item = object()
         writer.mock_create_item.configure_mock(side_effect=None, return_value=item)
         writer.mock_buffer_value.configure_mock(side_effect=None)
-        timestamp_property = PropertyMock(
-            return_value=datetime.datetime.now(datetime.timezone.utc)
-        )
+        timestamp_property = PropertyMock(return_value=datetime.datetime.now(datetime.timezone.utc))
         type(writer.time_stamper).timestamp = timestamp_property
 
         await writer.write_async("tag", tbase.DataType.BOOLEAN, False, timestamp=None)
@@ -312,15 +298,11 @@ class TestBufferedTagWriter:
 
         assert writer._num_buffered == 0
         assert writer._buffer_limit == 2
-        await writer.write_async(
-            "tag1", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp
-        )
+        await writer.write_async("tag1", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp)
         writer.mock_copy_buffer.assert_not_called()
         writer.mock_send_writes_async.assert_not_called()
         assert writer._num_buffered == 1
-        await writer.write_async(
-            "tag2", tbase.DataType.DOUBLE, 1.1, timestamp=self.timestamp
-        )
+        await writer.write_async("tag2", tbase.DataType.DOUBLE, 1.1, timestamp=self.timestamp)
 
         assert writer.mock_create_item.call_args_list == [
             mock.call("tag1", tbase.DataType.BOOLEAN, "False", self.timestamp),
@@ -344,9 +326,7 @@ class TestBufferedTagWriter:
         type(writer.timer).can_start = can_start_property
         writer.timer.start.configure_mock(side_effect=None)
 
-        await writer.write_async(
-            "tag", tbase.DataType.DOUBLE, 1.1, timestamp=self.timestamp
-        )
+        await writer.write_async("tag", tbase.DataType.DOUBLE, 1.1, timestamp=self.timestamp)
         writer.timer.start.assert_called_once_with()
 
     @pytest.mark.asyncio
@@ -372,20 +352,14 @@ class TestBufferedTagWriter:
         writer.trigger_flush_event()
         # But here's where the user gets a chance to see the error
         with pytest.raises(core.ApiException):
-            await writer.write_async(
-                "tag2", tbase.DataType.INT32, -1, timestamp=self.timestamp
-            )
+            await writer.write_async("tag2", tbase.DataType.INT32, -1, timestamp=self.timestamp)
         writer.clear_buffered_writes()  # "Clear" the buffer, or next write would fill it
-        await writer.write_async(
-            "tag3", tbase.DataType.STRING, "test3", timestamp=self.timestamp
-        )
+        await writer.write_async("tag3", tbase.DataType.STRING, "test3", timestamp=self.timestamp)
 
         writer.mock_send_writes.assert_called_once_with(buffer)
         assert writer.mock_buffer_value.call_args_list == [
             mock.call("tag1", item1),
-            mock.call(
-                "tag2", item2
-            ),  # tag2 should have been buffered despite the error
+            mock.call("tag2", item2),  # tag2 should have been buffered despite the error
             mock.call("tag3", item3),
         ]
 
@@ -530,9 +504,7 @@ class TestBufferedTagWriter:
     def test__send_buffered_writes_already_called__original_flush_timer_elapsed__updates_not_sent(
         self,
     ):
-        writer = self.MockBufferedTagWriter(
-            SystemTimeStamper(), 2, MockManualResetTimer()
-        )
+        writer = self.MockBufferedTagWriter(SystemTimeStamper(), 2, MockManualResetTimer())
         item1 = object()
         item2 = object()
         buffer = [item1]
@@ -562,9 +534,7 @@ class TestBufferedTagWriter:
     def test__clear_buffered_writes_already_called__original_flush_timer_elapsed__writes_not_sent(
         self,
     ):
-        writer = self.MockBufferedTagWriter(
-            SystemTimeStamper(), 2, MockManualResetTimer()
-        )
+        writer = self.MockBufferedTagWriter(SystemTimeStamper(), 2, MockManualResetTimer())
         item1 = object()
         item2 = object()
 
@@ -619,9 +589,7 @@ class TestBufferedTagWriter:
         with pytest.raises(ReferenceError):
             writer.write("tag", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp)
         with pytest.raises(ReferenceError):
-            await writer.write_async(
-                "tag", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp
-            )
+            await writer.write_async("tag", tbase.DataType.BOOLEAN, False, timestamp=self.timestamp)
 
     class MockBufferedTagWriter(tbase.BufferedTagWriter):
         def __init__(self, stamper=None, buffer_size=None, flush_timer=None):

@@ -163,9 +163,7 @@ class DataFrameClient(BaseClient):
         ...
 
     @post("delete-tables", args=[Field("ids")])
-    def delete_tables(
-        self, ids: List[str]
-    ) -> Optional[models.DeleteTablesPartialSuccess]:
+    def delete_tables(self, ids: List[str]) -> Optional[models.DeleteTablesPartialSuccess]:
         """Deletes multiple tables.
 
         Args:
@@ -300,9 +298,7 @@ class DataFrameClient(BaseClient):
 
     @response_handler(_iter_content_filelike_wrapper)
     @post("tables/{id}/export-data", args=[Path, Body])
-    def export_table_data(
-        self, id: str, query: models.ExportTableDataRequest
-    ) -> IteratorFileLike:
+    def export_table_data(self, id: str, query: models.ExportTableDataRequest) -> IteratorFileLike:
         """Exports rows of data that match a filter from the table identified by its ID.
 
         Args:

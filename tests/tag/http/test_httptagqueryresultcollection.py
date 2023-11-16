@@ -39,9 +39,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
             ],
         }
 
-        uut = HttpTagQueryResultCollection(
-            self._client, None, None, None, 0, 2, response, None
-        )
+        uut = HttpTagQueryResultCollection(self._client, None, None, None, 0, 2, response, None)
         page = next(iter(uut))
         assert total_count == uut.total_count
         assert 2 == len(page)
@@ -67,9 +65,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
         mock_request = mock.Mock(method="GET", url="http://localhost")
         mock_response = mock.Mock(request=mock_request)
         with pytest.raises(core.ApiException):
-            HttpTagQueryResultCollection(
-                self._client, None, None, None, 0, None, {}, mock_response
-            )
+            HttpTagQueryResultCollection(self._client, None, None, None, 0, None, {}, mock_response)
 
     def test__constructed_with_empty_first_page__no_error(self):
         total_count = 2
@@ -81,9 +77,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
         assert 0 == len(list(uut))
 
         response = {"totalCount": 0, "tags": []}
-        uut = HttpTagQueryResultCollection(
-            self._client, None, None, None, 0, None, response, None
-        )
+        uut = HttpTagQueryResultCollection(self._client, None, None, None, 0, None, response, None)
         assert 0 == uut.total_count
         assert 0 == len(list(uut))
 
@@ -92,9 +86,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
             "totalCount": 1,
             "tags": [{"type": "SOME_NEW_VALUE", "path": "tag"}],
         }
-        uut = HttpTagQueryResultCollection(
-            self._client, None, None, None, 0, None, response, None
-        )
+        uut = HttpTagQueryResultCollection(self._client, None, None, None, 0, None, response, None)
         page = next(iter(uut))
         assert 1 == len(page)
         assert tbase.DataType.UNKNOWN == page[0].data_type
@@ -108,9 +100,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
         uut = HttpTagQueryResultCollection(
             self._client, paths, keywords, properties, 0, take, response, None
         )
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([response] * 2)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([response] * 2))
 
         next(iter(uut))  # Drain the cached page
         list(uut)  # Iterate over all pages (from the beginning)
@@ -179,9 +169,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
             )
         )
 
-        uut = HttpTagQueryResultCollection(
-            self._client, None, None, None, 0, 1, response, None
-        )
+        uut = HttpTagQueryResultCollection(self._client, None, None, None, 0, 1, response, None)
         itr = iter(uut)
         next(itr)
         page = next(itr)  # Retrieve the second page
@@ -199,9 +187,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
     def test__total_count_changes__move_next_page_async__total_count_updated(self):
         tags = [{"type": "STRING", "path": "tag1"}]
         response = {"totalCount": 2, "tags": tags}
-        uut = HttpTagQueryResultCollection(
-            self._client, None, None, None, 0, 1, response, None
-        )
+        uut = HttpTagQueryResultCollection(self._client, None, None, None, 0, 1, response, None)
         self._client.all_requests.configure_mock(
             side_effect=self._get_mock_request([{"totalCount": 3, "tags": tags}])
         )
@@ -214,9 +200,7 @@ class TestHttpTagQueryResultCollection(HttpClientTestBase):
 
     def test__move_next_page_async__page_can_be_empty(self):
         response = {"totalCount": 2, "tags": [{"type": "STRING", "path": "tag1"}]}
-        uut = HttpTagQueryResultCollection(
-            self._client, None, None, None, 0, 1, response, None
-        )
+        uut = HttpTagQueryResultCollection(self._client, None, None, None, 0, 1, response, None)
         self._client.all_requests.configure_mock(
             side_effect=self._get_mock_request([{"totalCount": 1, "tags": []}])
         )

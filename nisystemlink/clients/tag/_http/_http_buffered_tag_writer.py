@@ -50,9 +50,7 @@ class HttpBufferedTagWriter(tbase.BufferedTagWriter):
         value: str,
         timestamp: Optional[datetime.datetime] = None,
     ) -> Dict[str, Any]:
-        item = {
-            "value": {"value": value, "type": data_type.api_name}
-        }  # type: Dict[str, Any]
+        item = {"value": {"value": value, "type": data_type.api_name}}  # type: Dict[str, Any]
         if timestamp is not None:
             item["timestamp"] = TimestampUtilities.datetime_to_str(timestamp)
         return item
@@ -61,6 +59,4 @@ class HttpBufferedTagWriter(tbase.BufferedTagWriter):
         self._api.post("/update-current-values", data=list(updates.values()))
 
     async def _send_writes_async(self, updates: Dict[str, Any]) -> None:
-        await self._api.as_async.post(
-            "/update-current-values", data=list(updates.values())
-        )
+        await self._api.as_async.post("/update-current-values", data=list(updates.values()))

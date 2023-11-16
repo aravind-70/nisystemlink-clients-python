@@ -12,9 +12,7 @@ from typing_extensions import final
 @final
 class HttpAsyncTagQueryResultCollection(tbase.AsyncTagQueryResultCollection):
     def __init_subclass__(cls) -> None:
-        raise TypeError(
-            "type 'HttpAsyncTagQueryResultCollection' is not an acceptable base type"
-        )
+        raise TypeError("type 'HttpAsyncTagQueryResultCollection' is not an acceptable base type")
 
     def __init__(
         self,
@@ -27,9 +25,7 @@ class HttpAsyncTagQueryResultCollection(tbase.AsyncTagQueryResultCollection):
         tag_query_result: Dict[str, Any],
         http_response: HttpResponse,
     ) -> None:
-        first_page, total_count = self.__handle_query_response(
-            tag_query_result, http_response
-        )
+        first_page, total_count = self.__handle_query_response(tag_query_result, http_response)
         super().__init__(first_page, total_count, skip)
 
         api = client.at_uri("/nitag/v2")
@@ -52,9 +48,7 @@ class HttpAsyncTagQueryResultCollection(tbase.AsyncTagQueryResultCollection):
         self._query = query
 
     async def _query_page_async(self, skip: int) -> List[tbase.TagData]:
-        page, self._total_count = self.__handle_query_response(
-            *(await self._query(skip))
-        )
+        page, self._total_count = self.__handle_query_response(*(await self._query(skip)))
         return page
 
     def __handle_query_response(

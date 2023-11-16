@@ -18,16 +18,12 @@ class TagSubscriptionTests:
 
     def test__create_and_destroy_subscription__no_error(self):
         with contextlib.ExitStack() as exit_stack:
-            selection = exit_stack.enter_context(
-                self.tag_manager.create_selection(self._tags)
-            )
+            selection = exit_stack.enter_context(self.tag_manager.create_selection(self._tags))
             subscription = exit_stack.enter_context(selection.create_subscription())
             assert subscription is not None
 
     def test__subscribed_values_updated__subscription_receives_events(self):
-        assert (
-            len(self._tags) == 6
-        ), "Test needs to be updated to add additional data types"
+        assert len(self._tags) == 6, "Test needs to be updated to add additional data types"
 
         values = set()
         polling_interval = timedelta(milliseconds=500)
@@ -39,23 +35,17 @@ class TagSubscriptionTests:
         uint64_value = 2**31 + 3
 
         with contextlib.ExitStack() as exit_stack:
-            selection = exit_stack.enter_context(
-                self.tag_manager.create_selection(self._tags)
-            )
+            selection = exit_stack.enter_context(self.tag_manager.create_selection(self._tags))
             subscription = exit_stack.enter_context(
                 selection.create_subscription(update_interval=polling_interval)
             )
-            writer = exit_stack.enter_context(
-                self.tag_manager.create_writer(buffer_size=2)
-            )
+            writer = exit_stack.enter_context(self.tag_manager.create_writer(buffer_size=2))
 
             subscription.tag_changed += lambda tag, reader: values.add((tag, reader))
 
             tags = {t.data_type.name: t for t in self._tags}
             writer.write(tags["BOOLEAN"].path, tags["BOOLEAN"].data_type, bool_value)
-            writer.write(
-                tags["DATE_TIME"].path, tags["DATE_TIME"].data_type, date_value
-            )
+            writer.write(tags["DATE_TIME"].path, tags["DATE_TIME"].data_type, date_value)
             writer.write(tags["DOUBLE"].path, tags["DOUBLE"].data_type, double_value)
             writer.write(tags["INT32"].path, tags["INT32"].data_type, int_value)
             writer.write(tags["STRING"].path, tags["STRING"].data_type, string_value)
@@ -71,9 +61,7 @@ class TagSubscriptionTests:
                 assert len(self._tags) == len(values)
 
         # Exactly one of each data type.
-        assert len(self._tags) == len(
-            values
-        )  # len(set(t.tag.data_type for t in values))
+        assert len(self._tags) == len(values)  # len(set(t.tag.data_type for t in values))
 
         for (tag, reader) in values:
             assert reader is not None
@@ -107,19 +95,13 @@ class TagSubscriptionTests:
         polling_interval = timedelta(seconds=heartbeat_interval / (num_writes - 1))
 
         with contextlib.ExitStack() as exit_stack:
-            selection = exit_stack.enter_context(
-                self.tag_manager.create_selection(self._tags)
-            )
+            selection = exit_stack.enter_context(self.tag_manager.create_selection(self._tags))
             subscription = exit_stack.enter_context(selection.create_subscription())
-            writer = exit_stack.enter_context(
-                self.tag_manager.create_writer(buffer_size=1)
-            )
+            writer = exit_stack.enter_context(self.tag_manager.create_writer(buffer_size=1))
 
             int_tag = [t for t in self._tags if t.data_type == tbase.DataType.INT32][0]
             tag_changes = []
-            subscription.tag_changed += lambda tag, reader: tag_changes.append(
-                (tag, reader)
-            )
+            subscription.tag_changed += lambda tag, reader: tag_changes.append((tag, reader))
 
             for x in range(num_writes):
                 writer.write(int_tag.path, int_tag.data_type, x)

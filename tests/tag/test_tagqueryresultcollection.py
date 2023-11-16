@@ -14,9 +14,7 @@ class TestTagQueryResultCollectionTests:
             self._calls = []
 
         def setup(self, next_page, new_total_count=None):
-            assert (
-                not self._setup_called
-            ), "setup called without previous call to _query_page"
+            assert not self._setup_called, "setup called without previous call to _query_page"
             self._setup_called = True
             if isinstance(next_page, Exception):
                 self._next_throw = next_page
@@ -67,9 +65,7 @@ class TestTagQueryResultCollectionTests:
 
         second_page = [TagData("tag3", DataType.DOUBLE)]
 
-        uut = self.MockTagQueryResultCollection(
-            first_page, len(first_page) + len(second_page), 0
-        )
+        uut = self.MockTagQueryResultCollection(first_page, len(first_page) + len(second_page), 0)
         uut.setup(second_page)
 
         itr = iter(uut)

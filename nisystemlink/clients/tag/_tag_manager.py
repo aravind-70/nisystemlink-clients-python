@@ -246,9 +246,7 @@ class TagManager(tbase.ITagReader):
                 raise ValueError("data_type cannot be None when create is True")
 
             # Tag didn't already exist, so try to create it.
-            await self._api.as_async.post(
-                "/tags", data={"type": data_type.api_name, "path": path}
-            )
+            await self._api.as_async.post("/tags", data={"type": data_type.api_name, "path": path})
             return tbase.TagData(path, data_type)
 
     def refresh(self, tags: List[tbase.TagData]) -> None:
@@ -319,9 +317,7 @@ class TagManager(tbase.ITagReader):
             tag = read_tags.get(data.path)
             if tag is not None:
                 data.clear_retention()
-                data.data_type = tbase.DataType.from_api_name(
-                    tag.get("type") or "UNKNOWN"
-                )
+                data.data_type = tbase.DataType.from_api_name(tag.get("type") or "UNKNOWN")
                 data.replace_keywords(tag.get("keywords") or [])
                 data.replace_properties(tag.get("properties") or {})
                 data.collect_aggregates = tag.get("collectAggregates") or False
@@ -584,17 +580,13 @@ class TagManager(tbase.ITagReader):
             raise ValueError("tags cannot contain None")
 
         validated_paths = [
-            tbase.TagPathUtilities.validate(t)
-            if isinstance(t, str)
-            else t.validate_path()
+            tbase.TagPathUtilities.validate(t) if isinstance(t, str) else t.validate_path()
             for t in tags
         ]
 
         self._perform_delete(validated_paths)
 
-    def delete_async(
-        self, tags: Iterable[Union[tbase.TagData, str]] = None
-    ) -> Awaitable[None]:
+    def delete_async(self, tags: Iterable[Union[tbase.TagData, str]] = None) -> Awaitable[None]:
         """Asynchronously delete one or more tags from the server.
 
         Args:
@@ -615,9 +607,7 @@ class TagManager(tbase.ITagReader):
                 raise ValueError("tags cannot contain None")
 
             validated_paths = [
-                tbase.TagPathUtilities.validate(t)
-                if isinstance(t, str)
-                else t.validate_path()
+                tbase.TagPathUtilities.validate(t) if isinstance(t, str) else t.validate_path()
                 for t in tags
             ]
         except Exception as ex:
@@ -707,9 +697,7 @@ class TagManager(tbase.ITagReader):
         else:
             timer = ManualResetTimer.null_timer
 
-        return HttpBufferedTagWriter(
-            self._http_client, SystemTimeStamper(), buffer_size, timer
-        )
+        return HttpBufferedTagWriter(self._http_client, SystemTimeStamper(), buffer_size, timer)
 
     def _read(
         self, path: str, include_timestamp: bool, include_aggregates: bool
@@ -739,19 +727,13 @@ class TagManager(tbase.ITagReader):
         path = tbase.TagPathUtilities.validate(path)
 
         if include_aggregates:
-            response, http_response = self._api.get(
-                "/tags/{path}/values", params={"path": path}
-            )
-            return self._handle_read(
-                path, response, http_response, include_timestamp, True
-            )
+            response, http_response = self._api.get("/tags/{path}/values", params={"path": path})
+            return self._handle_read(path, response, http_response, include_timestamp, True)
         elif include_timestamp:
             response2, http_response = self._api.get(
                 "/tags/{path}/values/current", params={"path": path}
             )
-            return self._handle_read(
-                path, response2, http_response, include_timestamp, False
-            )
+            return self._handle_read(path, response2, http_response, include_timestamp, False)
         else:
             response3, http_response = self._api.get(
                 "/tags/{path}/values/current/value", params={"path": path}
@@ -789,16 +771,12 @@ class TagManager(tbase.ITagReader):
             response, http_response = await self._api.as_async.get(
                 "/tags/{path}/values", params={"path": path}
             )
-            return self._handle_read(
-                path, response, http_response, include_timestamp, True
-            )
+            return self._handle_read(path, response, http_response, include_timestamp, True)
         elif include_timestamp:
             response2, http_response = await self._api.as_async.get(
                 "/tags/{path}/values/current", params={"path": path}
             )
-            return self._handle_read(
-                path, response2, http_response, include_timestamp, False
-            )
+            return self._handle_read(path, response2, http_response, include_timestamp, False)
         else:
             response3, http_response = await self._api.as_async.get(
                 "/tags/{path}/values/current/value", params={"path": path}
@@ -851,6 +829,4 @@ class TagManager(tbase.ITagReader):
     @classmethod
     def invalid_response(cls, response: HttpResponse) -> core.ApiException:
         request = response.request
-        return core.ApiException(
-            "Invalid response from {} {}".format(request.method, request.url)
-        )
+        return core.ApiException("Invalid response from {} {}".format(request.method, request.url))

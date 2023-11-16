@@ -20,6 +20,4 @@ class JupyterHttpConfiguration(core.HttpConfiguration):
         Raises:
             KeyError: if the expected environment variables are not set.
         """
-        super().__init__(
-            os.environ[self._HTTP_URI_ENV_VAR], os.environ[self._HTTP_API_KEY_ENV_VAR]
-        )
+        super().__init__(os.environ[self._HTTP_URI_ENV_VAR], os.environ[self._HTTP_API_KEY_ENV_VAR])

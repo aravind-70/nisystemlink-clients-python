@@ -93,9 +93,7 @@ class HttpTagSelection(tbase.TagSelection):
             raise
 
     @classmethod
-    async def open_async(
-        cls, client: HttpClient, paths: Sequence[str]
-    ) -> "HttpTagSelection":
+    async def open_async(cls, client: HttpClient, paths: Sequence[str]) -> "HttpTagSelection":
         """Asynchronously initialize a selection using queried data.
 
         Args:
@@ -167,9 +165,7 @@ class HttpTagSelection(tbase.TagSelection):
         if update_interval is not None:
             update_timer = ManualResetTimer(update_interval)
         paths = set(self.paths).union(self.metadata.keys())
-        return HttpTagSubscription.create(
-            self._client, paths, update_timer, heartbeat_timer=None
-        )
+        return HttpTagSubscription.create(self._client, paths, update_timer, heartbeat_timer=None)
 
     async def _create_subscription_internal_async(
         self, update_interval: Optional[datetime.timedelta] = None
@@ -257,9 +253,7 @@ class HttpTagSelection(tbase.TagSelection):
             aggregates = t.get("aggregates") or {}
             timestamp = None  # type: Optional[datetime.datetime]
             if t["current"].get("timestamp"):
-                timestamp = TimestampUtilities.str_to_datetime(
-                    t["current"]["timestamp"]
-                )
+                timestamp = TimestampUtilities.str_to_datetime(t["current"]["timestamp"])
             if value is None or data_type is None:
                 raise tbase.TagManager.invalid_response(http_response)
 
@@ -272,11 +266,7 @@ class HttpTagSelection(tbase.TagSelection):
                     aggregates.get("count"),
                     aggregates.get("min"),
                     aggregates.get("max"),
-                    (
-                        float(aggregates["avg"])
-                        if aggregates.get("avg") is not None
-                        else None
-                    ),
+                    (float(aggregates["avg"]) if aggregates.get("avg") is not None else None),
                 )
             )
         return result
@@ -294,9 +284,7 @@ class HttpTagSelection(tbase.TagSelection):
         self,
     ) -> Tuple[List[tbase.TagData], List[Optional[SerializedTagWithAggregates]]]:
         def fn(token: str) -> Awaitable[Tuple[Any, HttpResponse]]:
-            return self._api.as_async.get(
-                "/{id}/tags-with-values", params={"id": token}
-            )
+            return self._api.as_async.get("/{id}/tags-with-values", params={"id": token})
 
         response, http_response = await self._ensure_selection_and_call_async(fn)
         return self._handle_read_tags_metadata_and_values(response, http_response)
@@ -307,9 +295,7 @@ class HttpTagSelection(tbase.TagSelection):
         if (
             response is None
             or response.get("tagsWithValues") is None
-            or any(
-                t is None or t.get("tag") is None for t in response["tagsWithValues"]
-            )
+            or any(t is None or t.get("tag") is None for t in response["tagsWithValues"])
         ):
             raise tbase.TagManager.invalid_response(http_response)
 
@@ -332,16 +318,12 @@ class HttpTagSelection(tbase.TagSelection):
 
     async def _reset_aggregates_internal_async(self) -> None:
         def fn(token: str) -> Awaitable[Tuple[None, HttpResponse]]:
-            return self._api.as_async.post(
-                "/{id}/reset-aggregates", params={"id": token}
-            )
+            return self._api.as_async.post("/{id}/reset-aggregates", params={"id": token})
 
         await self._ensure_selection_and_call_async(fn)
 
     def _create_selection_on_server(self) -> None:
-        selection, http_response = self._api.post(
-            "", data={"searchPaths": list(self.paths)}
-        )
+        selection, http_response = self._api.post("", data={"searchPaths": list(self.paths)})
 
         if selection is None or selection.get("id") is None:
             raise tbase.TagManager.invalid_response(http_response)
@@ -394,9 +376,7 @@ class HttpTagSelection(tbase.TagSelection):
         assert self._token is not None
         return api_call(self._token)
 
-    async def _ensure_selection_and_call_async(
-        self, api_call: Callable[[str], Awaitable[T]]
-    ) -> T:
+    async def _ensure_selection_and_call_async(self, api_call: Callable[[str], Awaitable[T]]) -> T:
         if self._token is not None:
             try:
                 await self._update_selection_on_server_if_needed_async()

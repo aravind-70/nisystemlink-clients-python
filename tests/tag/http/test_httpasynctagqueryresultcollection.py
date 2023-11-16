@@ -48,9 +48,7 @@ class TestHttpAsyncTagQueryResultCollection(HttpClientTestBase):
         assert tbase.DataType.BOOLEAN == uut.current_page[0].data_type
         assert uut.current_page[0].collect_aggregates is True
         assert keywords == sorted(uut.current_page[0].keywords)
-        assert sorted(public_properties.items()) == sorted(
-            uut.current_page[0].properties.items()
-        )
+        assert sorted(public_properties.items()) == sorted(uut.current_page[0].properties.items())
         assert dummy_tag.retention_count == uut.current_page[0].retention_count
         assert dummy_tag.retention_days == uut.current_page[0].retention_days
         assert dummy_tag.retention_type == uut.current_page[0].retention_type
@@ -109,9 +107,7 @@ class TestHttpAsyncTagQueryResultCollection(HttpClientTestBase):
         uut = HttpAsyncTagQueryResultCollection(
             self._client, paths, keywords, properties, 0, take, response, None
         )
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request([response] * 2)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request([response] * 2))
 
         await uut.reset_async()
         await uut.move_next_page_async()
@@ -192,9 +188,7 @@ class TestHttpAsyncTagQueryResultCollection(HttpClientTestBase):
         assert tbase.DataType.UINT64 == uut.current_page[0].data_type
         assert uut.current_page[0].collect_aggregates is True
         assert keywords == sorted(uut.current_page[0].keywords)
-        assert sorted(public_properties.items()) == sorted(
-            uut.current_page[0].properties.items()
-        )
+        assert sorted(public_properties.items()) == sorted(uut.current_page[0].properties.items())
         assert dummy_tag.retention_count == uut.current_page[0].retention_count
         assert dummy_tag.retention_days == uut.current_page[0].retention_days
         assert dummy_tag.retention_type == uut.current_page[0].retention_type

@@ -347,9 +347,7 @@ class BufferedTagWriter(tbase.ITagWriter):
                 )
             else:
                 timestamp = timestamp.astimezone(datetime.timezone.utc)
-        return self._create_item(
-            tbase.TagPathUtilities.validate(path), data_type, value, timestamp
-        )
+        return self._create_item(tbase.TagPathUtilities.validate(path), data_type, value, timestamp)
 
     def _retrieve_buffered_values_while_locked(self) -> Any:
         """Return the buffered values, if any, and clears the buffer.

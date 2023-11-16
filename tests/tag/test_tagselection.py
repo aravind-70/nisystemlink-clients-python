@@ -215,13 +215,9 @@ class TestTagSelection:
         )
 
         assert mock_subscription1 is selection.create_subscription()
-        assert mock_subscription2 is selection.create_subscription(
-            update_interval=update_interval
-        )
+        assert mock_subscription2 is selection.create_subscription(update_interval=update_interval)
         with pytest.raises(ValueError):
-            selection.create_subscription(
-                update_interval=datetime.timedelta(seconds=-1)
-            )
+            selection.create_subscription(update_interval=datetime.timedelta(seconds=-1))
 
         assert selection.mock_create_subscription_internal.call_args_list == [
             mock.call(None),
@@ -275,27 +271,19 @@ class TestTagSelection:
         selection.mock_delete_tags_from_server_internal.configure_mock(side_effect=None)
 
         selection.refresh_values()
-        assert (
-            selection.read(path2, include_timestamp=False, include_aggregates=False)
-            is not None
-        )
+        assert selection.read(path2, include_timestamp=False, include_aggregates=False) is not None
         selection.remove_tags([path2])
         selection.delete_tags_from_server()
         selection.add_tags([TagData(path2, DataType.STRING)])
 
-        assert (
-            selection.read(path2, include_timestamp=False, include_aggregates=False)
-            is None
-        )
+        assert selection.read(path2, include_timestamp=False, include_aggregates=False) is None
 
     @pytest.mark.asyncio
     async def test__delete_tags_from_server_async__collections_cleared_after_asynchronous_delete(
         self,
     ):
         selection = self.MockTagSelection([TagData("tag1", DataType.BOOLEAN)], ["tag*"])
-        selection.mock_delete_tags_from_server_internal_async.configure_mock(
-            side_effect=None
-        )
+        selection.mock_delete_tags_from_server_internal_async.configure_mock(side_effect=None)
         await selection.delete_tags_from_server_async()
 
         assert 0 == len(selection.metadata)
@@ -316,15 +304,11 @@ class TestTagSelection:
                 SerializedTagWithAggregates(path2, DataType.STRING, "value2"),
             ],
         )
-        selection.mock_delete_tags_from_server_internal_async.configure_mock(
-            side_effect=None
-        )
+        selection.mock_delete_tags_from_server_internal_async.configure_mock(side_effect=None)
 
         selection.refresh_values()
         assert (
-            await selection.read_async(
-                path2, include_timestamp=False, include_aggregates=False
-            )
+            await selection.read_async(path2, include_timestamp=False, include_aggregates=False)
             is not None
         )
         selection.remove_tags([path2])
@@ -332,9 +316,7 @@ class TestTagSelection:
         selection.add_tags([TagData(path2, DataType.STRING)])
 
         assert (
-            await selection.read_async(
-                path2, include_timestamp=False, include_aggregates=False
-            )
+            await selection.read_async(path2, include_timestamp=False, include_aggregates=False)
             is None
         )
 
@@ -460,9 +442,7 @@ class TestTagSelection:
         )
 
         selection.refresh()
-        value = selection.read(
-            value_path, include_timestamp=True, include_aggregates=True
-        )
+        value = selection.read(value_path, include_timestamp=True, include_aggregates=True)
 
         assert value is not None
         assert DataType.INT32 == value.data_type
@@ -473,10 +453,7 @@ class TestTagSelection:
         assert 9 == value.max
         assert 6.0 == value.mean
         assert (
-            selection.read(
-                no_value_path, include_timestamp=True, include_aggregates=True
-            )
-            is None
+            selection.read(no_value_path, include_timestamp=True, include_aggregates=True) is None
         )
 
     @pytest.mark.asyncio
@@ -693,9 +670,7 @@ class TestTagSelection:
         path = "tag1"
         tags = [TagData(path, DataType.INT32)]
         selection = self.MockTagSelection(tags)
-        selection.mock_read_tag_metadata.configure_mock(
-            side_effect=[[TagData] * 0, tags]
-        )
+        selection.mock_read_tag_metadata.configure_mock(side_effect=[[TagData] * 0, tags])
         selection.mock_read_tag_values.configure_mock(
             side_effect=None,
             return_value=[SerializedTagWithAggregates(path, DataType.INT32, "5")],
@@ -705,10 +680,7 @@ class TestTagSelection:
         selection.refresh_metadata()
         selection.refresh_metadata()
 
-        assert (
-            selection.read(path, include_timestamp=True, include_aggregates=True)
-            is None
-        )
+        assert selection.read(path, include_timestamp=True, include_aggregates=True) is None
 
     @pytest.mark.asyncio
     async def test__refresh_metadata_async__metadata_updated_and_readers_replaced_when_type_changed(
@@ -803,9 +775,7 @@ class TestTagSelection:
         path = "tag1"
         tags = [TagData(path, DataType.INT32)]
         selection = self.MockTagSelection(tags)
-        selection.mock_read_tag_metadata_async.configure_mock(
-            side_effect=[[TagData] * 0, tags]
-        )
+        selection.mock_read_tag_metadata_async.configure_mock(side_effect=[[TagData] * 0, tags])
         selection.mock_read_tag_values.configure_mock(
             side_effect=None,
             return_value=[SerializedTagWithAggregates(path, DataType.INT32, "5")],
@@ -816,9 +786,7 @@ class TestTagSelection:
         await selection.refresh_metadata_async()
 
         assert (
-            await selection.read_async(
-                path, include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async(path, include_timestamp=True, include_aggregates=True)
             is None
         )
 
@@ -842,9 +810,7 @@ class TestTagSelection:
         )
 
         selection.refresh_values()
-        value = selection.read(
-            value_path, include_timestamp=True, include_aggregates=True
-        )
+        value = selection.read(value_path, include_timestamp=True, include_aggregates=True)
 
         assert value is not None
         assert DataType.INT32 == value.data_type
@@ -855,10 +821,7 @@ class TestTagSelection:
         assert 9 == value.max
         assert 6.0 == value.mean
         assert (
-            selection.read(
-                no_value_path, include_timestamp=True, include_aggregates=True
-            )
-            is None
+            selection.read(no_value_path, include_timestamp=True, include_aggregates=True) is None
         )
 
     def test__refresh_values__metadata_and_readers_updated_when_type_changes(self):
@@ -911,10 +874,7 @@ class TestTagSelection:
         selection.refresh_values()
         selection.refresh_values()
 
-        assert (
-            selection.read(path, include_timestamp=True, include_aggregates=True)
-            is None
-        )
+        assert selection.read(path, include_timestamp=True, include_aggregates=True) is None
 
     @pytest.mark.asyncio
     async def test__refresh_values_async__values_updated(self):
@@ -1013,9 +973,7 @@ class TestTagSelection:
         await selection.refresh_values_async()
 
         assert (
-            await selection.read_async(
-                path, include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async(path, include_timestamp=True, include_aggregates=True)
             is None
         )
 
@@ -1106,9 +1064,7 @@ class TestTagSelection:
             ],
         )
 
-        value = selection.read(
-            value_path, include_timestamp=True, include_aggregates=True
-        )
+        value = selection.read(value_path, include_timestamp=True, include_aggregates=True)
 
         assert value is not None
         assert DataType.INT32 == value.data_type
@@ -1119,10 +1075,7 @@ class TestTagSelection:
         assert 9 == value.max
         assert 6.0 == value.mean
         assert (
-            selection.read(
-                no_value_path, include_timestamp=True, include_aggregates=True
-            )
-            is None
+            selection.read(no_value_path, include_timestamp=True, include_aggregates=True) is None
         )
         selection.mock_read_tag_values.assert_called_once_with()
 
@@ -1137,10 +1090,7 @@ class TestTagSelection:
         assert selection._read(
             path, include_timestamp=True, include_aggregates=True
         ) is selection._read(path, include_timestamp=True, include_aggregates=True)
-        assert (
-            selection._read(path, include_timestamp=True, include_aggregates=True)
-            is not None
-        )
+        assert selection._read(path, include_timestamp=True, include_aggregates=True) is not None
         selection.mock_read_tag_values.assert_called_once_with()
 
     def test__tag_has_no_value__read__returns_null(self):
@@ -1150,10 +1100,7 @@ class TestTagSelection:
             side_effect=None, return_value=[SerializedTagWithAggregates] * 0
         )
 
-        assert (
-            selection.read(path, include_timestamp=True, include_aggregates=True)
-            is None
-        )
+        assert selection.read(path, include_timestamp=True, include_aggregates=True) is None
         selection.mock_read_tag_values.assert_called_once_with()
 
     def test__tags_not_in_selection__read__raises(self):
@@ -1215,15 +1162,11 @@ class TestTagSelection:
             return_value=[SerializedTagWithAggregates(path, DataType.INT32, "5")],
         )
 
-        assert await selection._read_async(
-            path, True, True
-        ) is await selection._read_async(
+        assert await selection._read_async(path, True, True) is await selection._read_async(
             path, include_timestamp=True, include_aggregates=True
         )
         assert (
-            await selection._read_async(
-                path, include_timestamp=True, include_aggregates=True
-            )
+            await selection._read_async(path, include_timestamp=True, include_aggregates=True)
             is not None
         )
         selection.mock_read_tag_values_async.assert_called_once_with()
@@ -1237,9 +1180,7 @@ class TestTagSelection:
         )
 
         assert (
-            await selection.read_async(
-                path, include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async(path, include_timestamp=True, include_aggregates=True)
             is None
         )
         selection.mock_read_tag_values_async.assert_called_once_with()
@@ -1251,13 +1192,9 @@ class TestTagSelection:
             side_effect=None, return_value=[SerializedTagWithAggregates] * 0
         )
         with pytest.raises(ValueError):
-            await selection.read_async(
-                None, include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async(None, include_timestamp=True, include_aggregates=True)
         with pytest.raises(ValueError):
-            await selection.read_async(
-                "tag", include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async("tag", include_timestamp=True, include_aggregates=True)
 
     @pytest.mark.asyncio
     async def test__after_close__method_called__raises(self):
@@ -1278,9 +1215,7 @@ class TestTagSelection:
         with pytest.raises(ReferenceError):
             await selection.create_subscription_async()
         with pytest.raises(ReferenceError):
-            await selection.create_subscription_async(
-                update_interval=datetime.timedelta(seconds=1)
-            )
+            await selection.create_subscription_async(update_interval=datetime.timedelta(seconds=1))
         with pytest.raises(ReferenceError):
             selection.delete_tags_from_server()
         with pytest.raises(ReferenceError):
@@ -1311,9 +1246,7 @@ class TestTagSelection:
         with pytest.raises(ReferenceError):
             selection.read("tag", include_timestamp=True, include_aggregates=True)
         with pytest.raises(ReferenceError):
-            await selection.read_async(
-                "tag", include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async("tag", include_timestamp=True, include_aggregates=True)
 
         selection.mock_close_internal.assert_called_once_with()
 
@@ -1337,9 +1270,7 @@ class TestTagSelection:
         with pytest.raises(ReferenceError):
             await selection.create_subscription_async()
         with pytest.raises(ReferenceError):
-            await selection.create_subscription_async(
-                update_interval=datetime.timedelta(seconds=1)
-            )
+            await selection.create_subscription_async(update_interval=datetime.timedelta(seconds=1))
         with pytest.raises(ReferenceError):
             selection.delete_tags_from_server()
         with pytest.raises(ReferenceError):
@@ -1370,9 +1301,7 @@ class TestTagSelection:
         with pytest.raises(ReferenceError):
             selection.read("tag", include_timestamp=True, include_aggregates=True)
         with pytest.raises(ReferenceError):
-            await selection.read_async(
-                "tag", include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async("tag", include_timestamp=True, include_aggregates=True)
 
         selection.mock_close_internal.assert_called_once_with()
 
@@ -1395,9 +1324,7 @@ class TestTagSelection:
         with pytest.raises(ReferenceError):
             await selection.create_subscription_async()
         with pytest.raises(ReferenceError):
-            await selection.create_subscription_async(
-                update_interval=datetime.timedelta(seconds=1)
-            )
+            await selection.create_subscription_async(update_interval=datetime.timedelta(seconds=1))
         with pytest.raises(ReferenceError):
             selection.delete_tags_from_server()
         with pytest.raises(ReferenceError):
@@ -1428,9 +1355,7 @@ class TestTagSelection:
         with pytest.raises(ReferenceError):
             selection.read("tag", include_timestamp=True, include_aggregates=True)
         with pytest.raises(ReferenceError):
-            await selection.read_async(
-                "tag", include_timestamp=True, include_aggregates=True
-            )
+            await selection.read_async("tag", include_timestamp=True, include_aggregates=True)
 
         selection.mock_close_internal_async.assert_called_once_with()
 
@@ -1439,33 +1364,19 @@ class TestTagSelection:
             self.mock_buffer_value = Mock(side_effect=NotImplementedError)
             self.mock_close_internal = Mock(return_value=None)
             self.mock_close_internal_async = Mock(side_effect=NotImplementedError)
-            self.mock_create_subscription_internal = Mock(
-                side_effect=NotImplementedError
-            )
-            self.mock_create_subscription_internal_async = Mock(
-                side_effect=NotImplementedError
-            )
-            self.mock_delete_tags_from_server_internal = Mock(
-                side_effect=NotImplementedError
-            )
-            self.mock_delete_tags_from_server_internal_async = Mock(
-                side_effect=NotImplementedError
-            )
+            self.mock_create_subscription_internal = Mock(side_effect=NotImplementedError)
+            self.mock_create_subscription_internal_async = Mock(side_effect=NotImplementedError)
+            self.mock_delete_tags_from_server_internal = Mock(side_effect=NotImplementedError)
+            self.mock_delete_tags_from_server_internal_async = Mock(side_effect=NotImplementedError)
             self.mock_on_paths_changed = Mock(wraps=super()._on_paths_changed)
             self.mock_read_tag_metadata = Mock(side_effect=NotImplementedError)
-            self.mock_read_tag_metadata_and_values = Mock(
-                side_effect=NotImplementedError
-            )
-            self.mock_read_tag_metadata_and_values_async = Mock(
-                side_effect=NotImplementedError
-            )
+            self.mock_read_tag_metadata_and_values = Mock(side_effect=NotImplementedError)
+            self.mock_read_tag_metadata_and_values_async = Mock(side_effect=NotImplementedError)
             self.mock_read_tag_metadata_async = Mock(side_effect=NotImplementedError)
             self.mock_read_tag_values = Mock(side_effect=NotImplementedError)
             self.mock_read_tag_values_async = Mock(side_effect=NotImplementedError)
             self.mock_reset_aggregates_internal = Mock(side_effect=NotImplementedError)
-            self.mock_reset_aggregates_internal_async = Mock(
-                side_effect=NotImplementedError
-            )
+            self.mock_reset_aggregates_internal_async = Mock(side_effect=NotImplementedError)
 
             super().__init__(tags, paths)
 

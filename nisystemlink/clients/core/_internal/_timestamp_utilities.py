@@ -50,9 +50,7 @@ class TimestampUtilities:
         # decimal, and doesn't support "Z" as the timezone
         # Valid format is: YYYY-MM-DDThh:mm:ss.ssssss+NN:NN
         if not timestamp.endswith("Z"):
-            raise ValueError(
-                "Given timestamp doesn't end with 'Z': '{}'".format(timestamp)
-            )
+            raise ValueError("Given timestamp doesn't end with 'Z': '{}'".format(timestamp))
         timestamp = timestamp[:-1].ljust(26, "0")[:26] + "+0000"
         # Note to users: this will be in UTC time; to get a local datetime, you
         # can use value.astimezone()

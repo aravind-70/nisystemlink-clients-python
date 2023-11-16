@@ -16,9 +16,7 @@ class SerializedTagWithAggregatesReader(tbase.ITagReader):
     """Represents an :class:`.ITagReader` wrapping a single :class:`SerializedTagWithAggregates`."""
 
     def __init_subclass__(cls) -> None:
-        raise TypeError(
-            "type 'SerializedTagWithAggregatesReader' is not an acceptable base type"
-        )
+        raise TypeError("type 'SerializedTagWithAggregatesReader' is not an acceptable base type")
 
     def __init__(self, value: SerializedTagWithAggregates) -> None:
         """Initialize a reader instance for the given value.

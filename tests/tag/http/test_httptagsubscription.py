@@ -36,9 +36,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
     def test__create__subscription_created_on_server(self):
         token = "id"
         paths = ["tag1", "tag2", "tag3"]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         HttpTagSubscription.create(
             self._client,
@@ -65,9 +63,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
     async def test__create_async__subscription_created_on_server(self):
         token = "id"
         paths = ["tag1", "tag2", "tag3"]
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         await HttpTagSubscription.create_async(
             self._client,
@@ -95,13 +91,9 @@ class TestHttpTagSubscription(HttpClientTestBase):
         paths = []
         timer = mock.Mock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
-        uut = HttpTagSubscription.create(
-            self._client, paths, timer, ManualResetTimer.null_timer
-        )
+        uut = HttpTagSubscription.create(self._client, paths, timer, ManualResetTimer.null_timer)
 
         assert uut is not None
         assert self._client.all_requests.call_args_list == [
@@ -140,24 +132,14 @@ class TestHttpTagSubscription(HttpClientTestBase):
         self._client.all_requests.configure_mock(
             side_effect=self._get_mock_request(
                 token,
-                {
-                    "subscriptionUpdates": [
-                        {"subscriptionId": token, "updates": updates_list}
-                    ]
-                },
+                {"subscriptionUpdates": [{"subscriptionId": token, "updates": updates_list}]},
             )
         )
 
-        updates = (
-            {}
-        )  # type: Dict[str, Tuple[tbase.TagData, Optional[tbase.TagValueReader]]]
-        uut = HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        )
+        updates = {}  # type: Dict[str, Tuple[tbase.TagData, Optional[tbase.TagValueReader]]]
+        uut = HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer)
 
-        def on_tag_changed(
-            tag: tbase.TagData, reader: Optional[tbase.TagValueReader]
-        ) -> None:
+        def on_tag_changed(tag: tbase.TagData, reader: Optional[tbase.TagValueReader]) -> None:
             assert tag is not None
             assert tag.path
             assert tag.path not in updates
@@ -216,29 +198,19 @@ class TestHttpTagSubscription(HttpClientTestBase):
         self._client.all_requests.configure_mock(
             side_effect=self._get_mock_request(
                 token,
-                {
-                    "subscriptionUpdates": [
-                        {"subscriptionId": token, "updates": updates_list}
-                    ]
-                },
+                {"subscriptionUpdates": [{"subscriptionId": token, "updates": updates_list}]},
             )
         )
 
-        uut = HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        )
+        uut = HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer)
 
         assert self._client.all_requests.call_count == 2
 
-        def on_tag_changed(
-            tag: tbase.TagData, reader: Optional[tbase.TagValueReader]
-        ) -> None:
+        def on_tag_changed(tag: tbase.TagData, reader: Optional[tbase.TagValueReader]) -> None:
             assert False, "Should not have received any updates"
 
         uut.tag_changed += on_tag_changed
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(None, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(None, {}))
 
         timer.elapsed()
 
@@ -251,19 +223,13 @@ class TestHttpTagSubscription(HttpClientTestBase):
         token = "test subscription"
         timer = mock.Mock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
         updates = []
 
-        def on_tag_changed(
-            tag: tbase.TagData, reader: Optional[tbase.TagValueReader]
-        ) -> None:
+        def on_tag_changed(tag: tbase.TagData, reader: Optional[tbase.TagValueReader]) -> None:
             updates.append((tag, reader))
 
-        uut = HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        )
+        uut = HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer)
         uut.tag_changed += on_tag_changed
 
         assert timer.start.call_count == 1
@@ -277,9 +243,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
         assert self._client.all_requests.call_count == 3
         assert self._client.all_requests.call_args[0][1].endswith("/values/current")
 
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(None, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(None, {}))
 
         timer.elapsed()
         assert timer.start.call_count == 3
@@ -340,20 +304,14 @@ class TestHttpTagSubscription(HttpClientTestBase):
             )
         )
 
-        def on_tag_changed(
-            tag: tbase.TagData, value: Optional[tbase.TagValueReader]
-        ) -> None:
+        def on_tag_changed(tag: tbase.TagData, value: Optional[tbase.TagValueReader]) -> None:
             assert tag is not None
             assert tag.path
             assert tag.path not in updates
             updates[tag.path] = (tag, value)
 
-        updates = (
-            {}
-        )  # type: Dict[str, Tuple[tbase.TagData, Optional[tbase.TagValueReader]]]
-        uut = HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        )
+        updates = {}  # type: Dict[str, Tuple[tbase.TagData, Optional[tbase.TagValueReader]]]
+        uut = HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer)
         uut.tag_changed += on_tag_changed
 
         timer.elapsed()
@@ -410,20 +368,14 @@ class TestHttpTagSubscription(HttpClientTestBase):
             )
         )
 
-        def on_tag_changed(
-            tag: tbase.TagData, reader: Optional[tbase.TagValueReader]
-        ) -> None:
+        def on_tag_changed(tag: tbase.TagData, reader: Optional[tbase.TagValueReader]) -> None:
             assert tag is not None
             assert tag.path
             assert tag.path not in updates
             updates[tag.path] = (tag, reader)
 
-        updates = (
-            {}
-        )  # type: Dict[str, Tuple[tbase.TagData, Optional[tbase.TagValueReader]]]
-        uut = HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        )
+        updates = {}  # type: Dict[str, Tuple[tbase.TagData, Optional[tbase.TagValueReader]]]
+        uut = HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer)
         uut.tag_changed += on_tag_changed
 
         timer.elapsed()
@@ -437,9 +389,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
 
     def test__exit__subscription_deleted_from_server(self):
         token = "test subscription"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         with HttpTagSubscription.create(
             self._client, [], ManualResetTimer.null_timer, ManualResetTimer.null_timer
@@ -454,13 +404,9 @@ class TestHttpTagSubscription(HttpClientTestBase):
         token = "id"
         timer = mock.MagicMock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
-        with HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        ):
+        with HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer):
             assert timer.stop.call_count == 0
             assert len(timer.elapsed) == 1
 
@@ -470,9 +416,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
     @pytest.mark.asyncio
     async def test__aexit__subscription_deleted_from_server(self):
         token = "test subscription"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         async with await HttpTagSubscription.create_async(
             self._client, [], ManualResetTimer.null_timer, ManualResetTimer.null_timer
@@ -488,9 +432,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
         token = "test subscription"
         timer = mock.MagicMock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         async with await HttpTagSubscription.create_async(
             self._client, [], timer, ManualResetTimer.null_timer
@@ -503,9 +445,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
 
     def test__close__subscription_deleted_from_server(self):
         token = "test subscription"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         uut = HttpTagSubscription.create(
             self._client, [], ManualResetTimer.null_timer, ManualResetTimer.null_timer
@@ -520,13 +460,9 @@ class TestHttpTagSubscription(HttpClientTestBase):
         token = "id"
         timer = mock.MagicMock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
-        uut = HttpTagSubscription.create(
-            self._client, [], timer, ManualResetTimer.null_timer
-        )
+        uut = HttpTagSubscription.create(self._client, [], timer, ManualResetTimer.null_timer)
         assert timer.stop.call_count == 0
         assert len(timer.elapsed) == 1
 
@@ -537,9 +473,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
     @pytest.mark.asyncio
     async def test__close_async__subscription_deleted_from_server(self):
         token = "test subscription"
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         uut = await HttpTagSubscription.create_async(
             self._client, [], ManualResetTimer.null_timer, ManualResetTimer.null_timer
@@ -555,9 +489,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
         token = "id"
         timer = mock.MagicMock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
         uut = await HttpTagSubscription.create_async(
             self._client, [], timer, ManualResetTimer.null_timer
@@ -573,13 +505,9 @@ class TestHttpTagSubscription(HttpClientTestBase):
         token = "test subscription"
         timer = mock.MagicMock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token, {}))
 
-        uut = HttpTagSubscription.create(
-            self._client, [], ManualResetTimer.null_timer, timer
-        )
+        uut = HttpTagSubscription.create(self._client, [], ManualResetTimer.null_timer, timer)
         assert uut is not None
         assert timer.start.call_count == 1
 
@@ -598,13 +526,9 @@ class TestHttpTagSubscription(HttpClientTestBase):
         paths = ["tag1", "tag2", "tag3"]
         timer = mock.MagicMock(ManualResetTimer, wraps=ManualResetTimer.null_timer)
         type(timer).elapsed = events.events._EventSlot("elapsed")
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(token1, {})
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(token1, {}))
 
-        uut = HttpTagSubscription.create(
-            self._client, paths, ManualResetTimer.null_timer, timer
-        )
+        uut = HttpTagSubscription.create(self._client, paths, ManualResetTimer.null_timer, timer)
 
         assert uut is not None
         assert timer.start.call_count == 1
@@ -653,9 +577,7 @@ class TestHttpTagSubscription(HttpClientTestBase):
             ),
         ]
 
-        self._client.all_requests.configure_mock(
-            side_effect=self._get_mock_request(None, None)
-        )
+        self._client.all_requests.configure_mock(side_effect=self._get_mock_request(None, None))
 
         timer.elapsed()
 

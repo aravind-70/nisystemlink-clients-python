@@ -72,14 +72,10 @@ class _ITagReaderOverloads(abc.ABC):
         pass
 
     @typing.overload
-    def get_tag_reader(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueReader[Any]":
+    def get_tag_reader(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueReader[Any]":
         pass
 
-    def get_tag_reader(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueReader":
+    def get_tag_reader(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueReader":
         """Get a :class:`TagValueReader` for this path.
 
         Args:
@@ -89,9 +85,7 @@ class _ITagReaderOverloads(abc.ABC):
         return self._get_tag_reader(path, data_type)
 
     @abc.abstractmethod
-    def _get_tag_reader(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueReader":
+    def _get_tag_reader(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueReader":
         """Get a :class:`TagValueReader` for this path.
 
         Args:
@@ -105,11 +99,7 @@ class ITagReader(_ITagReaderOverloads):
     """Provides an interface for reading the current and aggregate values of a single SystemLink tag."""
 
     def read(
-        self,
-        path: str,
-        *,
-        include_timestamp: bool = False,
-        include_aggregates: bool = False
+        self, path: str, *, include_timestamp: bool = False, include_aggregates: bool = False
     ) -> Optional[tbase.TagWithAggregates]:
         """Retrieve the current value of the tag with the given ``path`` from the server.
 
@@ -153,11 +143,7 @@ class ITagReader(_ITagReaderOverloads):
         )
 
     async def read_async(
-        self,
-        path: str,
-        *,
-        include_timestamp: bool = False,
-        include_aggregates: bool = False
+        self, path: str, *, include_timestamp: bool = False, include_aggregates: bool = False
     ) -> Optional[tbase.TagWithAggregates]:
         """Asynchronously retrieve the current value of the tag with the given ``path`` from the server.
 
@@ -271,9 +257,7 @@ class ITagReader(_ITagReaderOverloads):
         except ValueError:
             return None
 
-    def _get_tag_reader(
-        self, path: str, data_type: tbase.DataType
-    ) -> "tbase.TagValueReader":
+    def _get_tag_reader(self, path: str, data_type: tbase.DataType) -> "tbase.TagValueReader":
         """Get a :class:`TagValueReader` for this path.
 
         Args:

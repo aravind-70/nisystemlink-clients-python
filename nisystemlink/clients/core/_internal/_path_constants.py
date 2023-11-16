@@ -42,9 +42,7 @@ class PathConstants(metaclass=ClasspropertySupport):
                     self._windows_application_data_directory()
                 )
             else:
-                PathConstants._application_data_directory = pathlib.Path(
-                    "/etc/natinst/niskyline"
-                )
+                PathConstants._application_data_directory = pathlib.Path("/etc/natinst/niskyline")
         return typing.cast(pathlib.Path, self._application_data_directory)
 
     @classmethod
@@ -64,9 +62,7 @@ class PathConstants(metaclass=ClasspropertySupport):
         try:
             from . import _winpaths
 
-            programdata_dir = pathlib.Path(
-                _winpaths.get_path(_winpaths.FOLDERID.ProgramData)
-            )
+            programdata_dir = pathlib.Path(_winpaths.get_path(_winpaths.FOLDERID.ProgramData))
         except Exception:
             programdata_dir = pathlib.Path("C:/ProgramData")
         if not programdata_dir.exists():

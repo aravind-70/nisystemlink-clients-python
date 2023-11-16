@@ -170,9 +170,7 @@ class TagManagerTests:
 
     def test__collect_aggregates_False__aggregates_is_None(self, generate_tag_path):
         with self.tag_manager.create_writer(buffer_size=1) as writer:
-            tag = self.tag_manager.open(
-                generate_tag_path(), tbase.DataType.DOUBLE, create=True
-            )
+            tag = self.tag_manager.open(generate_tag_path(), tbase.DataType.DOUBLE, create=True)
             writer.write(tag.path, tag.data_type, math.e)
 
             for i in range(10):
@@ -246,9 +244,7 @@ class TagManagerTests:
     def test__merge_metadata__queried_metadata_is_correct(self, generate_tag_path):
         keywords = ["keyword1", "keyword2"]
         properties = {"prop1": "value1", "prop2": "value2"}
-        tag = tbase.TagData(
-            generate_tag_path(), tbase.DataType.DOUBLE, keywords, properties
-        )
+        tag = tbase.TagData(generate_tag_path(), tbase.DataType.DOUBLE, keywords, properties)
 
         self.tag_manager.update([tag])
         opened_tag = self.tag_manager.open(tag.path)
@@ -312,9 +308,7 @@ class TagManagerTests:
         assert 50 == opened_tag.retention_count
 
     def test__change_data_type__raises(self, generate_tag_path):
-        tag = self.tag_manager.open(
-            generate_tag_path(), tbase.DataType.BOOLEAN, create=True
-        )
+        tag = self.tag_manager.open(generate_tag_path(), tbase.DataType.BOOLEAN, create=True)
         tag.data_type = tbase.DataType.DATE_TIME
         with pytest.raises(core.ApiException) as ex:
             self.tag_manager.update([tag])
@@ -331,9 +325,7 @@ class TagManagerTests:
 
     def test__write_wrong_data_type__write_ignored(self, generate_tag_path):
         with self.tag_manager.create_writer(buffer_size=1) as writer:
-            tag = self.tag_manager.open(
-                generate_tag_path(), tbase.DataType.DOUBLE, create=True
-            )
+            tag = self.tag_manager.open(generate_tag_path(), tbase.DataType.DOUBLE, create=True)
             writer.write(tag.path, tbase.DataType.INT32, 7)
             assert self.tag_manager.read(tag.path) is None
 
@@ -380,9 +372,7 @@ class TagManagerTests:
 
         # Property query
         self.internal_test_query_result(
-            self.tag_manager.query(
-                paths, keywords=None, properties={"oddEven": "even"}
-            ),
+            self.tag_manager.query(paths, keywords=None, properties={"oddEven": "even"}),
             even_paths,
             len(even_paths),
         )
@@ -397,9 +387,7 @@ class TagManagerTests:
         )
 
     @classmethod
-    def internal_test_query_result(
-        cls, query, expected_paths, page_size, skip=0, expected_pages=1
-    ):
+    def internal_test_query_result(cls, query, expected_paths, page_size, skip=0, expected_pages=1):
         expected_list = list(expected_paths)
         assert len(expected_list) == query.total_count
 

@@ -52,9 +52,7 @@ class TagSubscription(events.Events, abc.ABC):
     _HEARTBEAT_INTERVAL_MILLISECONDS = 30000.0
     """Send a heartbeat every 30 seconds based on a server-side expiration of 60 seconds."""
 
-    def __init__(
-        self, paths: Iterable[str], heartbeat_timer: Optional[ManualResetTimer]
-    ) -> None:
+    def __init__(self, paths: Iterable[str], heartbeat_timer: Optional[ManualResetTimer]) -> None:
         """Initialize the instance.
 
         Derived types must call :meth:`_initialize()` or :meth:`_initialize_async()`
@@ -243,9 +241,7 @@ class TagSubscription(events.Events, abc.ABC):
             suppress = self._exit_stack.__exit__(exc_type, exc_val, exc_tb)
         return suppress
 
-    def _on_tag_changed(
-        self, tag: tbase.TagData, value: Optional[tbase.TagValueReader]
-    ) -> None:
+    def _on_tag_changed(self, tag: tbase.TagData, value: Optional[tbase.TagValueReader]) -> None:
         """Raise the :attr:`tag_changed` event.
 
         Args:

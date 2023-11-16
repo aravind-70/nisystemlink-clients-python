@@ -44,9 +44,7 @@ class TestITagReader:
             path = "MyPath.{}".format(data_type.name)
             tag_reader = reader.get_tag_reader(path, data_type)
             reader.mock_read.configure_mock(
-                return_value=SerializedTagWithAggregates(
-                    path, data_type, serialized_value
-                )
+                return_value=SerializedTagWithAggregates(path, data_type, serialized_value)
             )
             result = tag_reader.read()
             assert reader.mock_read.call_args_list
@@ -61,9 +59,7 @@ class TestITagReader:
             path = "MyPath.{}".format(data_type.name)
             tag_reader = reader.get_tag_reader(path, data_type)
             reader.mock_read.configure_mock(
-                return_value=SerializedTagWithAggregates(
-                    path, data_type, serialized_value
-                )
+                return_value=SerializedTagWithAggregates(path, data_type, serialized_value)
             )
             result = await tag_reader.read_async()
             assert reader.mock_read.call_args_list
@@ -102,9 +98,7 @@ class TestITagReader:
                     files.append(f.name)
                     f.write(code[data_type.name])
             stdout, stderr, exit_code = mypy.api.run(files)
-            assert 0 == exit_code, "\n\n".join(
-                (stdout, stderr, str(code).replace("\\n", "\n"))
-            )
+            assert 0 == exit_code, "\n\n".join((stdout, stderr, str(code).replace("\\n", "\n")))
         finally:
             for fname in files:
                 os.remove(fname)

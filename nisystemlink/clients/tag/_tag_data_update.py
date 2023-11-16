@@ -54,9 +54,7 @@ class TagDataUpdate:
         self._data_type = data_type
 
         if keywords is None and properties is None:
-            raise ValueError(
-                "Must specify at least one of keywords or properties to update"
-            )
+            raise ValueError("Must specify at least one of keywords or properties to update")
         self._keywords = list(keywords) if keywords is not None else None
         self._properties = None  # type: Optional[Dict[str, str]]
         if properties is not None:
@@ -65,9 +63,7 @@ class TagDataUpdate:
         self._collect_aggregates = None  # type: Optional[bool]
 
     @classmethod
-    def from_tagdata(
-        cls, data: tbase.TagData, fields: tbase.TagUpdateFields
-    ) -> "TagDataUpdate":
+    def from_tagdata(cls, data: tbase.TagData, fields: tbase.TagUpdateFields) -> "TagDataUpdate":
         """Create an update by taking one or more fields from a :class:`TagData`.
 
         Args:

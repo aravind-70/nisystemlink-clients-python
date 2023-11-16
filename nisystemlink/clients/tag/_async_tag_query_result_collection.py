@@ -11,9 +11,7 @@ from nisystemlink.clients import core, tag as tbase
 class AsyncTagQueryResultCollection(abc.ABC):
     """Represents a paginated list of tags returned by an asynchronous query."""
 
-    def __init__(
-        self, first_page: List[tbase.TagData], total_count: int, skip: int
-    ) -> None:
+    def __init__(self, first_page: List[tbase.TagData], total_count: int, skip: int) -> None:
         """Initialize an instance with the first page of query results.
 
         Args:
@@ -25,9 +23,7 @@ class AsyncTagQueryResultCollection(abc.ABC):
         self._current_page = None  # type: Optional[List[tbase.TagData]]
         if first_page:
             if skip >= total_count:
-                raise core.ApiException(
-                    "skip is >= totalCount, but the tag list isn't empty"
-                )
+                raise core.ApiException("skip is >= totalCount, but the tag list isn't empty")
             self._current_page = first_page
         else:
             pass  # leave it as None, even if passed in as []

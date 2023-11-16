@@ -45,13 +45,9 @@ class HttpConfiguration:
         """
         uri = urllib.parse.urlsplit(server_uri)
         if not uri.scheme:
-            raise ValueError(
-                "Scheme (e.g. http) not included in server_uri: '{}'".format(uri)
-            )
+            raise ValueError("Scheme (e.g. http) not included in server_uri: '{}'".format(uri))
         if not uri.hostname:
-            raise ValueError(
-                "Host (e.g. foo.com) not included in server_uri: '{}'".format(uri)
-            )
+            raise ValueError("Host (e.g. foo.com) not included in server_uri: '{}'".format(uri))
         self._server_uri = urllib.parse.urlunsplit(uri[:2] + ("", "", ""))
 
         self._api_keys = None  # type: Optional[Dict[str, str]]

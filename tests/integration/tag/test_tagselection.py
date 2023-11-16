@@ -28,9 +28,7 @@ class TagSelectionTests:
         with self.tag_manager.open_selection([path_query]) as selection:
             assert 1 == len(selection.paths)
             assert path_query == selection.paths[0]
-            assert sorted([t.path for t in self._tags]) == sorted(
-                selection.metadata.keys()
-            )
+            assert sorted([t.path for t in self._tags]) == sorted(selection.metadata.keys())
 
     def test__create_empty_selection__has_no_tags(self):
         with self.tag_manager.create_selection([]) as selection:
@@ -62,33 +60,25 @@ class TagSelectionTests:
             assert 0 == len(selection.values)
 
     def test__some_tags_deleted_or_added__refresh_metadata__tag_list_is_correct(self):
-        with self.tag_manager.create_selection(
-            self._tags[: len(self._tags) // 2]
-        ) as selection:
+        with self.tag_manager.create_selection(self._tags[: len(self._tags) // 2]) as selection:
             selection.delete_tags_from_server()
             selection.add_tags(self._tags)
             selection.refresh_metadata()
 
-            assert sorted(
-                [t.path for t in self._tags[len(self._tags) // 2 :]]
-            ) == sorted(selection.metadata.keys())
+            assert sorted([t.path for t in self._tags[len(self._tags) // 2 :]]) == sorted(
+                selection.metadata.keys()
+            )
 
             self.tag_manager.update(self._tags)
             selection.refresh_metadata()
 
-            assert sorted([t.path for t in self._tags]) == sorted(
-                selection.metadata.keys()
-            )
+            assert sorted([t.path for t in self._tags]) == sorted(selection.metadata.keys())
 
     def test__write_and_read_some_or_all_selection_tags__values_are_correct(self):
-        assert (
-            len(self._tags) == 6
-        ), "Test needs to be updated to add additional data types"
+        assert len(self._tags) == 6, "Test needs to be updated to add additional data types"
 
         with contextlib.ExitStack() as exit_stack:
-            selection = exit_stack.enter_context(
-                self.tag_manager.create_selection(self._tags)
-            )
+            selection = exit_stack.enter_context(self.tag_manager.create_selection(self._tags))
             writer = exit_stack.enter_context(
                 self.tag_manager.create_writer(buffer_size=len(self._tags))
             )
@@ -133,9 +123,7 @@ class TagSelectionTests:
             uint64_value = 2**31 + 3
 
             writer.write(tags["BOOLEAN"].path, tags["BOOLEAN"].data_type, False)
-            writer.write(
-                tags["DATE_TIME"].path, tags["DATE_TIME"].data_type, date_value
-            )
+            writer.write(tags["DATE_TIME"].path, tags["DATE_TIME"].data_type, date_value)
             writer.write(tags["INT32"].path, tags["INT32"].data_type, int_value)
             writer.write(tags["STRING"].path, tags["STRING"].data_type, string_value)
             writer.write(tags["UINT64"].path, tags["UINT64"].data_type, uint64_value)
@@ -158,12 +146,8 @@ class TagSelectionTests:
 
     def test__reset_aggregates__aggregate_values_are_correct(self):
         with contextlib.ExitStack() as exit_stack:
-            selection = exit_stack.enter_context(
-                self.tag_manager.create_selection(self._tags)
-            )
-            writer = exit_stack.enter_context(
-                self.tag_manager.create_writer(buffer_size=1)
-            )
+            selection = exit_stack.enter_context(self.tag_manager.create_selection(self._tags))
+            writer = exit_stack.enter_context(self.tag_manager.create_writer(buffer_size=1))
 
             dbl_tag = [t for t in self._tags if t.data_type == tbase.DataType.DOUBLE][0]
             writer.write(dbl_tag.path, dbl_tag.data_type, -sys.float_info.max / 2)

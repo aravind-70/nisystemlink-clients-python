@@ -93,9 +93,7 @@ class Policy(JsonModel):
     """
     A list of statements defining the actions the user can perform on a resource in a workspace
     """
-    template_id: Optional[str] = Field(
-        None, alias="templateId", example="policy-template-id"
-    )
+    template_id: Optional[str] = Field(None, alias="templateId", example="policy-template-id")
     """
     The id of the policy template. Only set if the policy has been created based on a template and
     does not contain inline statements.
@@ -140,9 +138,7 @@ class Key(JsonModel):
     """
     Whether the key is deleted or not
     """
-    default_workspace: Optional[str] = Field(
-        None, alias="defaultWorkspace", example="workspace-id"
-    )
+    default_workspace: Optional[str] = Field(None, alias="defaultWorkspace", example="workspace-id")
     """
     This field overrides the default workspace when authenticating.
     """
@@ -166,9 +162,7 @@ class User(JsonModel):
     """
     The unique id
     """
-    first_name: Optional[str] = Field(
-        None, alias="firstName", example="user-first-name"
-    )
+    first_name: Optional[str] = Field(None, alias="firstName", example="user-first-name")
     """
     The user's first name
     """
@@ -302,15 +296,11 @@ class UserPolicy(JsonModel):
     """
     The policy name
     """
-    template_id: Optional[str] = Field(
-        None, alias="templateId", example="policy-template-id"
-    )
+    template_id: Optional[str] = Field(None, alias="templateId", example="policy-template-id")
     """
     The identifier of a policy template
     """
-    workspace_id: Optional[str] = Field(
-        None, alias="workspaceId", example="workspace-id"
-    )
+    workspace_id: Optional[str] = Field(None, alias="workspaceId", example="workspace-id")
     """
     The identifier of a workspace
     """

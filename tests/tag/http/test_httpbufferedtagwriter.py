@@ -37,9 +37,7 @@ class TestHttpBufferedTagWriter(HttpClientTestBase):
         updates = data[0].get("updates")
         assert isinstance(updates, list)
         utctime = datetime.utcfromtimestamp(timestamp.timestamp()).isoformat() + "Z"
-        assert updates == [
-            {"value": {"type": "INT", "value": str(value)}, "timestamp": utctime}
-        ]
+        assert updates == [{"value": {"type": "INT", "value": str(value)}, "timestamp": utctime}]
 
     @pytest.mark.asyncio
     async def test__write_buffered__send_buffered_writes_async__sends_write(self):
@@ -47,9 +45,7 @@ class TestHttpBufferedTagWriter(HttpClientTestBase):
         value = 2
         timestamp = datetime.now()
 
-        await self._uut.write_async(
-            path, tbase.DataType.INT32, value, timestamp=timestamp
-        )
+        await self._uut.write_async(path, tbase.DataType.INT32, value, timestamp=timestamp)
         await self._uut.send_buffered_writes_async()
 
         assert self._client.all_requests.call_count == 1
@@ -62,9 +58,7 @@ class TestHttpBufferedTagWriter(HttpClientTestBase):
         updates = data[0].get("updates")
         assert isinstance(updates, list)
         utctime = datetime.utcfromtimestamp(timestamp.timestamp()).isoformat() + "Z"
-        assert updates == [
-            {"value": {"type": "INT", "value": str(value)}, "timestamp": utctime}
-        ]
+        assert updates == [{"value": {"type": "INT", "value": str(value)}, "timestamp": utctime}]
 
     def test__multiple_writes_buffered_for_same_tag__send_buffered_writes__writes_combined_into_one_batch(
         self,

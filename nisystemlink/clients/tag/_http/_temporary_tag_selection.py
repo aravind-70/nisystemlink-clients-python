@@ -38,9 +38,7 @@ class TemporaryTagSelection:
         return selection
 
     @classmethod
-    async def create_async(
-        cls, client: HttpClient, paths: List[str]
-    ) -> "TemporaryTagSelection":
+    async def create_async(cls, client: HttpClient, paths: List[str]) -> "TemporaryTagSelection":
         """Asynchronously create a temporary tag selection containing the given paths.
 
         Args:

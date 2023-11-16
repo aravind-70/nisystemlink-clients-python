@@ -12,9 +12,7 @@ from typing_extensions import final
 @final
 class HttpTagQueryResultCollection(tbase.TagQueryResultCollection):
     def __init_subclass__(cls) -> None:
-        raise TypeError(
-            "type 'HttpTagQueryResultCollection' is not an acceptable base type"
-        )
+        raise TypeError("type 'HttpTagQueryResultCollection' is not an acceptable base type")
 
     def __init__(
         self,
@@ -27,9 +25,7 @@ class HttpTagQueryResultCollection(tbase.TagQueryResultCollection):
         tag_query_result: Dict[str, Any],
         http_response: HttpResponse,
     ) -> None:
-        first_page, total_count = self.__handle_query_response(
-            tag_query_result, http_response
-        )
+        first_page, total_count = self.__handle_query_response(tag_query_result, http_response)
         super().__init__(first_page, total_count, skip)
 
         api = client.at_uri("/nitag/v2")
