@@ -32,9 +32,29 @@ class TestMonitorClient(BaseClient):
     # results
     @post("results")
     def create_results(
-        self,
-        requestBody: models.CreateTestResultsRequest,
-    ) -> models.PartialSuccessOrCompleteSuccess:
+        self, request_body: models.CreateTestResultsRequest
+    ) -> models.CreateResultPartialSuccessResponse:
+        """Create new test results with given result details.
+
+        Args:
+            request_body :  Request body of results.
+
+        Returns:
+            Details of created test results.
+        """
+        ...
+
+    @delete("results/{resultId}", args=[Path, Query])
+    def delete_result(self, resultId: str, deleteSteps: bool) -> None:
+        """Delete a test result.
+
+        Args:
+            resultId : Result ID to be deleted.
+            deleteSteps : Delete the steps associated with results.
+
+        Returns:
+            None
+        """
         ...
 
     # steps
@@ -164,3 +184,4 @@ class TestMonitorClient(BaseClient):
             None
         """
         ...
+

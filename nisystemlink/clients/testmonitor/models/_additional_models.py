@@ -20,11 +20,19 @@ class CreateTestResultsRequest(JsonModel):
     results: List[TestResultRequestObject]
 
 
-class PartialSuccessOrCompleteSuccess(JsonModel):
-
+class CreateResultPartialSuccessResponse(JsonModel):
     results: List[TestResultResponseObject]
+    """
+    Array of created results.
+    """
     failed: Optional[List[TestResultRequestObject]]
+    """
+    Array of failed results.
+    """
     error: Optional[Error]
+    """
+    Default error model.
+    """
 
 
 class StepsQueryResponse(JsonModel):

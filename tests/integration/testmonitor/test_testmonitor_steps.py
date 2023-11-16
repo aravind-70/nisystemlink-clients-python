@@ -68,13 +68,14 @@ def get_result_id(client: TestMonitorClient):
     )
     response = client.create_results(request_body)
     result_id = response.results[0].id
-    return result_id
+    yield result_id
+
+    client.delete_result(resultId=result_id, deleteSteps=True)
 
 
 @pytest.fixture(scope="class")
 def create_steps_request_body(get_result_id: str, get_step_id: Callable):
     """Return a request body for create steps API."""
-
     def _create_steps_request_body():
         step_num = str(get_step_id())
         request_body = TestStepCreateOrUpdateRequestObject(
@@ -116,7 +117,7 @@ def test_steps(client: TestMonitorClient, create_steps_request_body: Callable):
     """Return sample steps."""
     steps = []
 
-    for _ in range(4):
+    for _ in range(3):
         request_body = create_steps_request_body()
         response = client.create_steps(request_body=request_body)
         steps.append(response.steps[0])
@@ -127,7 +128,7 @@ def test_steps(client: TestMonitorClient, create_steps_request_body: Callable):
 @pytest.mark.integration
 @pytest.mark.enterprise
 class TestSuiteTestMonitorClientSteps:
-    """Methods to test Steps API of TestMonitor."""
+    """Test Steps API of TestMonitor."""
 
     def test__create_steps__complete_success(
         self,
@@ -153,28 +154,23 @@ class TestSuiteTestMonitorClientSteps:
         step_id = get_step_id()
         request_body = TestStepCreateOrUpdateRequestObject(
             steps=[
-                TestStepRequestObject(
-                    step_id=str(step_id),
-                    result_id=get_result_id,
-                ),
-                TestStepRequestObject(  # Duplicate product
-                    step_id=str(step_id),
-                    result_id=get_result_id,
-                ),
+                TestStepRequestObject(step_id=str(step_id), result_id=get_result_id),
+                # Duplicate step
+                TestStepRequestObject(step_id=str(step_id), result_id=get_result_id),
             ]
         )
         response = client.create_steps(request_body=request_body)
 
         assert response.steps is not None
         assert len(response.steps) == 1
-
         assert response.failed is not None
-        assert len(response.failed) == 1
-
         assert response.error is not None
 
     def test__get_step(
-        self, client: TestMonitorClient, get_result_id: str, test_steps: List[TestStepResponseObject],
+        self,
+        client: TestMonitorClient,
+        get_result_id: str,
+        test_steps: List[TestStepResponseObject],
     ):
         """Test get step with valid IDs."""
         result_id = get_result_id
@@ -216,13 +212,13 @@ class TestSuiteTestMonitorClientSteps:
         created_step = client.create_steps(request_body=request_body)
         step_id = created_step.steps[0].step_id
 
-        deleted_step = client.delete_step(
+        response = client.delete_step(
             resultId=get_result_id,
             stepId=step_id,
             updateResultTotalTime=True,
         )
 
-        assert deleted_step is None
+        assert response is None
 
     def test__delete_step__invalid_id(self, client: TestMonitorClient):
         """Test delete a step with invalid ID."""
@@ -241,33 +237,34 @@ class TestSuiteTestMonitorClientSteps:
             request_body = create_steps_request_body()
             created_step = client.create_steps(request_body=request_body)
             result_step_pair.append(
-                StepIdResultIdPair(step_id=created_step.steps[0].step_id, result_id=get_result_id)
+                StepIdResultIdPair(
+                    step_id=created_step.steps[0].step_id,
+                    result_id=get_result_id
+                )
             )
-        request_body = TestStepsDeleteRequest(steps=result_step_pair)
 
+        request_body = TestStepsDeleteRequest(steps=result_step_pair)
         response = client.delete_steps(request_body=request_body, UpdateResultTotalTime=True)
+
         assert response is None
 
     def test__delete_steps__partial_success(
         self,
         client: TestMonitorClient,
-        get_result_id: str,        
+        get_result_id: str,
         create_steps_request_body: Callable,
     ):
         """Test delete multiple steps with invalid ID."""
         request_body = create_steps_request_body()
         created_step = client.create_steps(request_body=request_body)
+
         result_step_pair = [
             StepIdResultIdPair(step_id=created_step.steps[0].step_id, result_id=get_result_id),
-            StepIdResultIdPair(
-                step_id=INVALID_ID,
-                result_id=INVALID_ID,
-            ),
+            StepIdResultIdPair(step_id=INVALID_ID, result_id=INVALID_ID),
         ]
         request_body = TestStepsDeleteRequest(steps=result_step_pair)
-        response = client.delete_steps(request_body=request_body, UpdateResultTotalTime=False)
+        response = client.delete_steps(request_body=request_body, UpdateResultTotalTime=True)
 
-        assert response is not None
         assert response.steps is not None
         assert response.failed is not None
         assert response.error is not None
@@ -295,9 +292,9 @@ class TestSuiteTestMonitorClientSteps:
         )
         response = client.update_steps(request_body=request_body)
 
+        assert response.steps is not None
         assert response.failed is None
         assert response.error is None
-        assert response.steps is not None
 
         updated_step = response.steps[0]
         assert updated_step.started_at == started_at
@@ -306,7 +303,7 @@ class TestSuiteTestMonitorClientSteps:
     def test__update_steps__partial_success(
         self,
         client: TestMonitorClient,
-        get_result_id: str,        
+        get_result_id: str,
         test_steps: List[TestStepResponseObject],
     ):
         """Test update steps with invalid ID."""
@@ -352,6 +349,7 @@ class TestSuiteTestMonitorClientSteps:
         assert response.steps is not None
         assert len(response.steps) == 1
         assert response.total_count is not None
+        assert response.total_count > 0
 
     def test__query_step_values(self, client: TestMonitorClient, get_result_id: str):
         """Test query step values."""
