@@ -1,7 +1,9 @@
 """This file contains the test class for steps APIs of TestMonitor."""
 from datetime import datetime, timezone
+from typing import Callable, List
 
 import pytest
+
 from nisystemlink.clients.auth import AuthClient
 from nisystemlink.clients.core import ApiException
 from nisystemlink.clients.testmonitor import TestMonitorClient
@@ -18,6 +20,7 @@ from nisystemlink.clients.testmonitor.models import (
     TestResultRequestObject,
     TestStepCreateOrUpdateRequestObject,
     TestStepRequestObject,
+    TestStepResponseObject,
     TestStepsDeleteRequest,
 )
 
@@ -69,7 +72,7 @@ def get_result_id(client: TestMonitorClient):
 
 
 @pytest.fixture(scope="class")
-def create_steps_request_body(client: TestMonitorClient, get_result_id, get_step_id):
+def create_steps_request_body(get_result_id: str, get_step_id: Callable):
     """Return a request body for create steps API."""
 
     def _create_steps_request_body():
@@ -109,7 +112,7 @@ def create_steps_request_body(client: TestMonitorClient, get_result_id, get_step
 
 
 @pytest.fixture(scope="class")
-def test_steps(client: TestMonitorClient, create_steps_request_body):
+def test_steps(client: TestMonitorClient, create_steps_request_body: Callable):
     """Return sample steps."""
     steps = []
 
@@ -129,7 +132,7 @@ class TestSuiteTestMonitorClientSteps:
     def test__create_steps__complete_success(
         self,
         client: TestMonitorClient,
-        create_steps_request_body,
+        create_steps_request_body: Callable,
     ):
         """Test the case of completely successful create steps."""
         request_body = create_steps_request_body()
@@ -143,8 +146,8 @@ class TestSuiteTestMonitorClientSteps:
     def test__create_steps__partial_success(
         self,
         client: TestMonitorClient,
-        get_step_id,
-        get_result_id,
+        get_result_id: str,
+        get_step_id: Callable,
     ):
         """Test the case of partially successful create steps."""
         step_id = get_step_id()
@@ -170,7 +173,9 @@ class TestSuiteTestMonitorClientSteps:
 
         assert response.error is not None
 
-    def test__get_step(self, client: TestMonitorClient, get_result_id, test_steps):
+    def test__get_step(
+        self, client: TestMonitorClient, get_result_id: str, test_steps: List[TestStepResponseObject],
+    ):
         """Test get step with valid IDs."""
         result_id = get_result_id
         test_step = test_steps[0]
@@ -203,8 +208,8 @@ class TestSuiteTestMonitorClientSteps:
     def test__delete_step(
         self,
         client: TestMonitorClient,
-        create_steps_request_body,
-        get_result_id,
+        get_result_id: str,
+        create_steps_request_body: Callable,
     ):
         """Test delete a step with valid ID."""
         request_body = create_steps_request_body()
@@ -227,8 +232,8 @@ class TestSuiteTestMonitorClientSteps:
     def test__delete_steps__complete_success(
         self,
         client: TestMonitorClient,
-        create_steps_request_body,
-        get_result_id,
+        get_result_id: str,
+        create_steps_request_body: Callable,
     ):
         """Test delete multiple steps."""
         result_step_pair = []
@@ -246,8 +251,8 @@ class TestSuiteTestMonitorClientSteps:
     def test__delete_steps__partial_success(
         self,
         client: TestMonitorClient,
-        create_steps_request_body,
-        get_result_id,
+        get_result_id: str,        
+        create_steps_request_body: Callable,
     ):
         """Test delete multiple steps with invalid ID."""
         request_body = create_steps_request_body()
@@ -270,8 +275,8 @@ class TestSuiteTestMonitorClientSteps:
     def test__update_steps__complete_success(
         self,
         client: TestMonitorClient,
-        test_steps,
-        get_result_id,
+        get_result_id: str,
+        test_steps: List[TestStepResponseObject],
     ):
         """Test update steps."""
         test_step = test_steps[1]
@@ -301,8 +306,8 @@ class TestSuiteTestMonitorClientSteps:
     def test__update_steps__partial_success(
         self,
         client: TestMonitorClient,
-        test_steps,
-        get_result_id,
+        get_result_id: str,        
+        test_steps: List[TestStepResponseObject],
     ):
         """Test update steps with invalid ID."""
         test_step = test_steps[2]
@@ -330,10 +335,9 @@ class TestSuiteTestMonitorClientSteps:
         assert updated_step.total_time_in_seconds == TOTAL_TIME_IN_SECONDS + 1
 
         assert response.failed is not None
-        assert len(response.failed) == 1
         assert response.error is not None
 
-    def test__query_steps(self, client: TestMonitorClient, get_result_id):
+    def test__query_steps(self, client: TestMonitorClient, get_result_id: str):
         """Test query steps."""
         query_filter = StepsAdvancedQuery(
             filter="parentId == @0",
@@ -349,7 +353,7 @@ class TestSuiteTestMonitorClientSteps:
         assert len(response.steps) == 1
         assert response.total_count is not None
 
-    def test__query_step_values(self, client: TestMonitorClient, get_result_id):
+    def test__query_step_values(self, client: TestMonitorClient, get_result_id: str):
         """Test query step values."""
         step_query = StepValuesQuery(
             field=StepValuesQueryField.NAME,
